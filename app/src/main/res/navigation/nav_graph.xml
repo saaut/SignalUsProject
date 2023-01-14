@@ -12,7 +12,11 @@
         tools:layout="@layout/fragment_main_title" >
         <action
             android:id="@+id/action_mainTitleFragment_to_firstSelectFragment"
-            app:destination="@id/firstSelectFragment" />
+            app:destination="@id/firstSelectFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/firstSelectFragment"
@@ -21,13 +25,25 @@
         tools:layout="@layout/fragment_first_select" >
         <action
             android:id="@+id/action_firstSelectFragment_to_secondSelectFaceFragment"
-            app:destination="@id/secondSelectFaceFragment" />
+            app:destination="@id/secondSelectFaceFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_firstSelectFragment_to_secondSelectTopFragment2"
-            app:destination="@id/secondSelectTopFragment2" />
+            app:destination="@id/secondSelectTopFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
         <action
             android:id="@+id/action_firstSelectFragment_to_secondSelectBottomFragment"
-            app:destination="@id/secondSelectBottomFragment" />
+            app:destination="@id/secondSelectBottomFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
     <fragment
         android:id="@+id/secondSelectBottomFragment"
@@ -36,7 +52,11 @@
         tools:layout="@layout/fragment_second_select_bottom" >
         <action
             android:id="@+id/action_secondSelectBottomFragment_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
+            app:destination="@id/cameraFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
     <fragment
         android:id="@+id/secondSelectFaceFragment"
