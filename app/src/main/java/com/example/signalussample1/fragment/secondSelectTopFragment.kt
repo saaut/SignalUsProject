@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.signalussample1.R
@@ -48,30 +49,21 @@ class secondSelectTopFragment : Fragment(), View.OnClickListener {
             R.id.to_back_btn -> {
                 navController.navigate(R.id.action_secondSelectTopFragment2_to_secondSelectTopBackFragment)//front->back
             }
-            R.id.shoulder_shadow -> {
-                navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment)//front->back
-            }
-            R.id.arm_left_shadow -> {
-                navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment)//front->back
-            }
-            R.id.arm_right_shadow -> {
-            navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment)//front->back
-            }
-            R.id.chest_shadow -> {
-                navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment)//front->back
-            }
-            R.id.stomach_shadow -> {
-                navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment)//front->back
-            }
-            R.id.hand_left_shadow -> {
-                navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment)//front->back
-            }
-            R.id.hand_right_shadow -> {
-                navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment)//front->back
-            }
+            R.id.shoulder_shadow -> {navigateWithValue("어깨")}
+            R.id.arm_left_shadow -> {navigateWithValue("왼쪽 팔")}
+            R.id.arm_right_shadow -> {navigateWithValue("오른쪽 팔")}
+            R.id.chest_shadow -> {navigateWithValue("가슴")}
+            R.id.stomach_shadow -> {navigateWithValue("배")}
+            R.id.hand_left_shadow -> {navigateWithValue("왼쪽 손")}
+            R.id.hand_right_shadow -> {navigateWithValue("오른쪽 손")}
             R.id.back_btn -> {
                 navController.popBackStack()
             }
         }
     }
+    fun navigateWithValue(index : String){
+        val bundle = bundleOf("body_part" to index)
+        navController.navigate(R.id.action_secondSelectTopFragment2_to_cameraFragment,bundle)
+    }
+
 }

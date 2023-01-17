@@ -68,7 +68,8 @@
         tools:layout="@layout/fragment_second_select_face" >
         <action
             android:id="@+id/action_secondSelectFaceFragment_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
+            app:destination="@id/cameraFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
     </fragment>
     <fragment
         android:id="@+id/secondSelectTopFragment2"
@@ -77,7 +78,8 @@
         tools:layout="@layout/fragment_second_select_top" >
         <action
             android:id="@+id/action_secondSelectTopFragment2_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
+            app:destination="@id/cameraFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
         <action
             android:id="@+id/action_secondSelectTopFragment2_to_secondSelectTopBackFragment"
             app:destination="@id/secondSelectTopBackFragment" />
@@ -89,7 +91,8 @@
         tools:layout="@layout/fragment_second_select_botttom_back" >
         <action
             android:id="@+id/action_secondSelectBotttomBackFragment2_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
+            app:destination="@id/cameraFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
         <action
             android:id="@+id/action_secondSelectBotttomBackFragment2_to_secondSelectBottomFragment"
             app:destination="@id/secondSelectBottomFragment" />
@@ -101,7 +104,8 @@
         tools:layout="@layout/fragment_second_select_top_back" >
         <action
             android:id="@+id/action_secondSelectTopBackFragment_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
+            app:destination="@id/cameraFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
         <action
             android:id="@+id/action_secondSelectTopBackFragment_to_secondSelectTopFragment2"
             app:destination="@id/secondSelectTopFragment2" />
@@ -113,7 +117,8 @@
         tools:layout="@layout/fragment_camera" >
         <action
             android:id="@+id/action_cameraFragment_to_voiceRecordFragment"
-            app:destination="@id/voiceRecordFragment" />
+            app:destination="@id/voiceRecordFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
     </fragment>
     <fragment
         android:id="@+id/voiceRecordFragment"
@@ -122,7 +127,8 @@
         tools:layout="@layout/fragment_voice_record" >
         <action
             android:id="@+id/action_voiceRecordFragment_to_voiceToTextFragment"
-            app:destination="@id/voiceToTextFragment" />
+            app:destination="@id/voiceToTextFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
     </fragment>
     <fragment
         android:id="@+id/voiceToTextFragment"

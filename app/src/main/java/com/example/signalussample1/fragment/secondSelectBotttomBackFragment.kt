@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.signalussample1.R
@@ -41,12 +42,16 @@ class secondSelectBotttomBackFragment : Fragment(), View.OnClickListener {
             R.id.to_front_btn -> {
                 navController.navigate(R.id.action_secondSelectBotttomBackFragment2_to_secondSelectBottomFragment)//뒤->앞
             }
-            R.id.hip_shadow ->{
-                navController.navigate(R.id.action_secondSelectBotttomBackFragment2_to_cameraFragment)
+            R.id.hip_shadow ->{navigateWithValue("엉덩이")
             }
             R.id.back_btn -> {
                 navController.popBackStack()
             }
         }
+    }
+
+    fun navigateWithValue(index : String){
+        val bundle =bundleOf("body_part" to index)
+        navController.navigate(R.id.action_secondSelectBotttomBackFragment2_to_cameraFragment,bundle)
     }
 }

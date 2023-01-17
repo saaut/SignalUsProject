@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.signalussample1.R
@@ -45,27 +46,20 @@ class secondSelectBottomFragment : Fragment(), View.OnClickListener {
             R.id.to_back_btn -> {
                 navController.navigate(R.id.action_secondSelectBottomFragment_to_secondSelectBotttomBackFragment2)//뒤->앞
             }
-            R.id.pelvic_left_shadow->{
-                navController.navigate(R.id.action_secondSelectBottomFragment_to_cameraFragment)
-            }
-            R.id.pelvic_right_shadow->{
-                navController.navigate(R.id.action_secondSelectBottomFragment_to_cameraFragment)
-            }
-            R.id.leg_left_shadow->{
-            navController.navigate(R.id.action_secondSelectBottomFragment_to_cameraFragment)
-            }
-            R.id.leg_right_shadow->{
-            navController.navigate(R.id.action_secondSelectBottomFragment_to_cameraFragment)
-            }
-            R.id.foot_left_shadow->{
-            navController.navigate(R.id.action_secondSelectBottomFragment_to_cameraFragment)
-            }
-            R.id.foot_right_shadow->{
-            navController.navigate(R.id.action_secondSelectBottomFragment_to_cameraFragment)
-            }
+            R.id.pelvic_left_shadow->{navigateWithValue("왼쪽 골반")}
+            R.id.pelvic_right_shadow->{navigateWithValue("오른쪽 골반")}
+            R.id.leg_left_shadow->{navigateWithValue("왼쪽 다리")}
+            R.id.leg_right_shadow->{navigateWithValue("오른쪽 다리")}
+            R.id.foot_left_shadow->{navigateWithValue("왼쪽 발")}
+            R.id.foot_right_shadow->{navigateWithValue("오른쪽 발")}
             R.id.back_btn -> {
                 navController.popBackStack()
             }
         }
+    }
+
+    fun navigateWithValue(index : String){
+        val bundle = bundleOf("body_part" to index)
+        navController.navigate(R.id.action_secondSelectBottomFragment_to_cameraFragment,bundle)
     }
 }
