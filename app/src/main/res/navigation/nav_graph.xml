@@ -57,6 +57,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/action_secondSelectBottomFragment_to_secondSelectBotttomBackFragment2"
+            app:destination="@id/secondSelectBotttomBackFragment2" />
     </fragment>
     <fragment
         android:id="@+id/secondSelectFaceFragment"
@@ -75,6 +78,9 @@
         <action
             android:id="@+id/action_secondSelectTopFragment2_to_cameraFragment"
             app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_secondSelectTopFragment2_to_secondSelectTopBackFragment"
+            app:destination="@id/secondSelectTopBackFragment" />
     </fragment>
     <fragment
         android:id="@+id/secondSelectBotttomBackFragment2"
@@ -84,6 +90,9 @@
         <action
             android:id="@+id/action_secondSelectBotttomBackFragment2_to_cameraFragment"
             app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_secondSelectBotttomBackFragment2_to_secondSelectBottomFragment"
+            app:destination="@id/secondSelectBottomFragment" />
     </fragment>
     <fragment
         android:id="@+id/secondSelectTopBackFragment"
@@ -93,6 +102,9 @@
         <action
             android:id="@+id/action_secondSelectTopBackFragment_to_cameraFragment"
             app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_secondSelectTopBackFragment_to_secondSelectTopFragment2"
+            app:destination="@id/secondSelectTopFragment2" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"

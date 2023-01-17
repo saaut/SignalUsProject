@@ -32,13 +32,36 @@ class secondSelectFaceFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         navController= Navigation.findNavController(view)
         back_btn.setOnClickListener(this)
-
-        face_img.setOnClickListener(this)
+        head_shadow.setOnClickListener(this)
+        eye_shadow.setOnClickListener(this)
+        mouth_shadow.setOnClickListener(this)
+        nose_shadow.setOnClickListener(this)
+        ear_left_shadow.setOnClickListener(this)
+        ear_right_shadow.setOnClickListener(this)
+        neck_shadow.setOnClickListener(this)
 
     }
     override fun onClick(v: View?){
         when(v?.id){
-            R.id.face_img->{
+            R.id.head_shadow->{
+                navController.navigate(R.id.action_secondSelectFaceFragment_to_cameraFragment)
+            }
+            R.id.eye_shadow->{
+                navController.navigate(R.id.action_secondSelectFaceFragment_to_cameraFragment)
+            }
+            R.id.mouth_shadow->{
+                navController.navigate(R.id.action_secondSelectFaceFragment_to_cameraFragment)
+            }
+            R.id.nose_shadow->{
+                navController.navigate(R.id.action_secondSelectFaceFragment_to_cameraFragment)
+            }
+            R.id.ear_left_shadow->{
+                navController.navigate(R.id.action_secondSelectFaceFragment_to_cameraFragment)
+            }
+            R.id.ear_right_shadow->{
+                navController.navigate(R.id.action_secondSelectFaceFragment_to_cameraFragment)
+            }
+            R.id.neck_shadow->{
                 navController.navigate(R.id.action_secondSelectFaceFragment_to_cameraFragment)
             }
             R.id.back_btn->{navController.popBackStack()

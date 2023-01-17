@@ -20,15 +20,43 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.074" />
 
+
+
     <ImageView
-        android:id="@+id/body_img"
-        android:layout_width="232dp"
-        android:layout_height="434dp"
-        android:src="@drawable/body"
+        android:id="@+id/body_bottom_img"
+        android:layout_width="74dp"
+        android:layout_height="229dp"
+        android:src="@drawable/body_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+        app:layout_constraintTop_toTopOf="@+id/guideline2"
+        app:layout_constraintVertical_bias="0.673" />
+
+    <ImageView
+        android:id="@+id/body_head_img"
+        android:layout_width="60dp"
+        android:layout_height="56dp"
+        android:src="@drawable/body_head"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline2"
+        app:layout_constraintVertical_bias="0.26" />
+    <ImageView
+        android:id="@+id/body_top_img"
+        android:layout_width="265dp"
+        android:layout_height="120dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/body_top"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline2"
+        app:layout_constraintVertical_bias="0.397" />
 
     <ImageView
         android:layout_width="113dp"
@@ -48,10 +76,12 @@
         android:fontFamily="sans-serif-black"
         android:text="원하는 부위를 선택해 주세요"
         android:textSize="19dp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView18" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView18"
+        app:layout_constraintVertical_bias="0.029" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"

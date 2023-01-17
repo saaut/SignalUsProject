@@ -27,16 +27,25 @@ class firstSelectFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController=Navigation.findNavController(view)
+        navController = Navigation.findNavController(view)
 
-        body_img.setOnClickListener(this)
+        body_head_img.setOnClickListener(this)
+        body_top_img.setOnClickListener(this)
+        body_bottom_img.setOnClickListener(this)
 
     }
     override fun onClick(v: View?){
         when(v?.id){
-            R.id.body_img->{
+            R.id.body_head_img->{
                 navController.navigate(R.id.action_firstSelectFragment_to_secondSelectFaceFragment)
             }
+            R.id.body_top_img->{
+                navController.navigate(R.id.action_firstSelectFragment_to_secondSelectTopFragment2)
+            }
+            R.id.body_bottom_img->{
+                navController.navigate(R.id.action_firstSelectFragment_to_secondSelectBottomFragment)
+            }
+
         }
     }
 

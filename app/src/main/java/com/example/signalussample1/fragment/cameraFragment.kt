@@ -25,9 +25,11 @@ class cameraFragment : Fragment(),View.OnClickListener {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_camera, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
+
         back_btn.setOnClickListener(this)
         stt_btn.setOnClickListener(this)
 
