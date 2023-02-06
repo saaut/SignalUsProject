@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainTitleFragment">
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.signalussample1_java.fragment.cameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" >
+        <action
+            android:id="@+id/action_cameraFragment_to_voiceRecordFragment"
+            app:destination="@id/voiceRecordFragment" />
+        <action
+            android:id="@+id/action_cameraFragment_to_voiceToTextFragment"
+            app:destination="@id/voiceToTextFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/firstSelectFragment"
+        android:name="com.example.signalussample1_java.fragment.firstSelectFragment"
+        android:label="fragment_first_select"
+        tools:layout="@layout/fragment_first_select" >
+        <action
+            android:id="@+id/action_firstSelectFragment_to_secondSelectFaceFragment"
+            app:destination="@id/secondSelectFaceFragment" />
+        <action
+            android:id="@+id/action_firstSelectFragment_to_secondSelectTopFragment"
+            app:destination="@id/secondSelectTopFragment" />
+        <action
+            android:id="@+id/action_firstSelectFragment_to_secondSelectBottomFragment"
+            app:destination="@id/secondSelectBottomFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainTitleFragment"
+        android:name="com.example.signalussample1_java.fragment.MainTitleFragment"
+        android:label="fragment_main_title"
+        tools:layout="@layout/fragment_main_title" >
+        <action
+            android:id="@+id/action_mainTitleFragment_to_firstSelectFragment"
+            app:destination="@id/firstSelectFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/secondSelectBottomFragment"
+        android:name="com.example.signalussample1_java.fragment.secondSelectBottomFragment"
+        android:label="fragment_second_select_bottom"
+        tools:layout="@layout/fragment_second_select_bottom" >
+        <action
+            android:id="@+id/action_secondSelectBottomFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_secondSelectBottomFragment_to_secondSelectBottomBackFragment"
+            app:destination="@id/secondSelectBottomBackFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/secondSelectFaceFragment"
+        android:name="com.example.signalussample1_java.fragment.secondSelectFaceFragment"
+        android:label="fragment_second_select_face"
+        tools:layout="@layout/fragment_second_select_face" >
+        <action
+            android:id="@+id/action_secondSelectFaceFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/secondSelectTopBackFragment"
+        android:name="com.example.signalussample1_java.fragment.secondSelectTopBackFragment"
+        android:label="fragment_second_select_top_back"
+        tools:layout="@layout/fragment_second_select_top_back" >
+        <action
+            android:id="@+id/action_secondSelectTopBackFragment_to_secondSelectTopFragment"
+            app:destination="@id/secondSelectTopFragment" />
+        <action
+            android:id="@+id/action_secondSelectTopBackFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/secondSelectTopFragment"
+        android:name="com.example.signalussample1_java.fragment.secondSelectTopFragment"
+        android:label="fragment_second_select_top"
+        tools:layout="@layout/fragment_second_select_top" >
+        <action
+            android:id="@+id/action_secondSelectTopFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_secondSelectTopFragment_to_secondSelectTopBackFragment"
+            app:destination="@id/secondSelectTopBackFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/voiceRecordFragment"
+        android:name="com.example.signalussample1_java.fragment.voiceRecordFragment"
+        android:label="fragment_voice_record"
+        tools:layout="@layout/fragment_voice_record" />
+    <fragment
+        android:id="@+id/voiceToTextFragment"
+        android:name="com.example.signalussample1_java.fragment.voiceToTextFragment"
+        android:label="fragment_voice_to_text"
+        tools:layout="@layout/fragment_voice_to_text" />
+    <fragment
+        android:id="@+id/secondSelectBottomBackFragment"
+        android:name="com.example.signalussample1_java.fragment.secondSelectBottomBackFragment"
+        android:label="fragment_second_select_bottom_back"
+        tools:layout="@layout/fragment_second_select_bottom_back" >
+        <action
+            android:id="@+id/action_secondSelectBottomBackFragment_to_secondSelectBottomFragment"
+            app:destination="@id/secondSelectBottomFragment" />
+        <action
+            android:id="@+id/action_secondSelectBottomBackFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
+</navigation>
