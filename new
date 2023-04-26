@@ -17,6 +17,8 @@ gesture = [[True, True, True, True, True, "Hi!"],
             [False, True, True, False, False, "Yeah!"],
             [True, True, False, False, True, "SpiderMan! "]]
 
+
+
 while True:
         success, img = cap.read( )
         h,w,c = img.shape
@@ -41,4 +43,4 @@ while True:
                                     cv2.FONT_HERSHEY_PLAIN, 4, (0,0,0),4)
                 mpDraw.draw_landmarks(img,handLms,mpHands.HAND_CONNECTIONS)
         cv2.imshow("HandTracking",img)
-        cv2.waitKey(1)
+        cv2.waitKey(1)       #키 입력 대기
