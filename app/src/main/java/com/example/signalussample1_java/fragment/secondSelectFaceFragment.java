@@ -66,7 +66,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131230962;
+        int var3 = 2131230963;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("머리");
@@ -74,7 +74,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230929;
+        var3 = 2131230930;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("눈");
@@ -98,7 +98,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230913;
+        var3 = 2131230914;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 귀");
@@ -106,7 +106,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230914;
+        var3 = 2131230915;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 귀");
@@ -122,7 +122,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230826;
+        var3 = 2131230827;
         if (var2 != null) {
             if (var2 == var3) {
                 NavController var10000 = this.navController;

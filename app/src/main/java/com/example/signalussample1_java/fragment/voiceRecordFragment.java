@@ -56,7 +56,7 @@ public final class voiceRecordFragment extends Fragment implements View.OnClickL
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131230826;
+        int var3 = 2131230827;
         if (var2 != null) {
             if (var2 == var3) {
                 NavController var10000 = this.navController;

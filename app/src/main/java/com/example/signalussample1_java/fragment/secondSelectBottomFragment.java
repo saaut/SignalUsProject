@@ -88,7 +88,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131231220;
+        var3 = 2131231120;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 골반");
@@ -112,7 +112,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131230945;
+        var3 = 2131230946;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 발");
@@ -120,7 +120,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131230946;
+        var3 = 2131230947;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 발");
@@ -128,7 +128,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131230826;
+        var3 = 2131230827;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

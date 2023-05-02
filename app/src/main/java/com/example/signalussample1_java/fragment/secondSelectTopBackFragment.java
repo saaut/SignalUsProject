@@ -75,7 +75,7 @@ public final class secondSelectTopBackFragment extends Fragment implements View.
             }
         }
 
-        var3 = 2131230827;
+        var3 = 2131230828;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("등");
@@ -83,7 +83,7 @@ public final class secondSelectTopBackFragment extends Fragment implements View.
             }
         }
 
-        var3 = 2131230826;
+        var3 = 2131230827;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

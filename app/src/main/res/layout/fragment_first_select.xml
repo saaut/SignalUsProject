@@ -61,8 +61,9 @@
     <ImageView
         android:layout_width="113dp"
         android:layout_height="53dp"
+        android:layout_marginBottom="32dp"
         android:src="@drawable/signalus_top_title"
-        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView18"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.053"
         app:layout_constraintStart_toStartOf="parent"

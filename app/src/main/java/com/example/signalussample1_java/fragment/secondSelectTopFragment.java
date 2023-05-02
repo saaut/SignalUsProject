@@ -89,7 +89,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230818;
+        var3 = 2131230819;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 팔");
@@ -97,7 +97,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230819;
+        var3 = 2131230820;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 팔");
@@ -105,7 +105,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230859;
+        var3 = 2131230860;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("가슴");
@@ -121,7 +121,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230960;
+        var3 = 2131230961;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 손");
@@ -129,7 +129,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230961;
+        var3 = 2131230962;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 손");
@@ -137,7 +137,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230826;
+        var3 = 2131230827;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

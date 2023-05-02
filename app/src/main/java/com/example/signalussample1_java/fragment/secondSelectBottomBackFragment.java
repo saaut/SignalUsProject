@@ -76,7 +76,7 @@ public final class secondSelectBottomBackFragment extends Fragment implements Vi
             }
         }
 
-        var3 = 2131230965;
+        var3 = 2131230966;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("엉덩이");
@@ -84,7 +84,7 @@ public final class secondSelectBottomBackFragment extends Fragment implements Vi
             }
         }
 
-        var3 = 2131230826;
+        var3 = 2131230827;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

@@ -95,7 +95,7 @@ public final class MainTitleFragment extends Fragment implements View.OnClickLis
             }
         }
 
-        var3 = 2131231300;
+        var3 = 2131230732;
         if (var2 != null) {
             if (var2 == var3) {
                 TextView var10000 = (TextView)this._$_findCachedViewById(id.information_text);

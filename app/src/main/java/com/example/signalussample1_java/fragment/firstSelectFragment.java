@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -54,11 +56,13 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
         ((ImageView)this._$_findCachedViewById(id.body_head_img)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.body_top_img)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.body_bottom_img)).setOnClickListener((View.OnClickListener)this);
+        Toast.makeText(getContext(), "어디가 아파서 오셨어요?", Toast.LENGTH_SHORT).show();
+
     }
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131230835;
+        int var3 = 2131230836;
         NavController var10000;
         if (var2 != null) {
             if (var2 == var3) {
@@ -72,7 +76,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
             }
         }
 
-        var3 = 2131230836;
+        var3 = 2131230837;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;
@@ -85,7 +89,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
             }
         }
 
-        var3 = 2131230834;
+        var3 = 2131230835;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

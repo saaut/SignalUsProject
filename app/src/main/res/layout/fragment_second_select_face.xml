@@ -39,6 +39,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.017" />
     <!--얼굴 이미지-->
+
+
+    <!--터치 영역 표시하는 그림자 부분-->
+
     <ImageView
         android:id="@+id/face_img"
         android:layout_width="320dp"
@@ -49,11 +53,7 @@
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView14"
-        app:layout_constraintVertical_bias="0.435" />
-
-
-
-    <!--터치 영역 표시하는 그림자 부분-->
+        app:layout_constraintVertical_bias="0.451" />
 
     <ImageView
         android:id="@+id/head_shadow"
@@ -131,8 +131,8 @@
         android:src="@drawable/neck"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.515"
+        app:layout_constraintHorizontal_bias="0.513"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/face_img"
-        app:layout_constraintVertical_bias="0.692" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView14"
+        app:layout_constraintVertical_bias="0.742" />
 </androidx.constraintlayout.widget.ConstraintLayout>
