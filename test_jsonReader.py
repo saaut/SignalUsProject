@@ -1,23 +1,36 @@
 import json
 import csv
+import glob
+import re
 
-with open('C:/Users/KuShiro/Documents/수어 관련 데이터/New_sample/라벨링데이터/REAL/WORD/01_real_word_keypoint/NIA_SL_WORD1501_REAL01_F/NIA_SL_WORD1501_REAL01_F_000000000000_keypoints.json') as f:
-    json_data = json.load(f)
+header = []
+for hand in ['left', 'right']:
+    for point_idx in range(21):
+        header.append(f'{hand}_hand_{point_idx}_x')
+        header.append(f'{hand}_hand_{point_idx}_y')
 
-left = json_data['people']['hand_left_keypoints_2d']
-right = json_data['people']['hand_right_keypoints_2d']
-print(left)
-print()
-print(right)
+file_list = glob.glob('C:/Users/KuShiro/Documents/수어 관련 데이터/New_sample/라벨링데이터/REAL/WORD/01_real_word_keypoint/NIA_SL_WORD1501_REAL01_F/*.json')
 
+def extract_number(filename):
+    return int(re.findall(r'\d+', filename)[0])
 
+file_list_sorted = sorted(file_list, key=extract_number)
 
-with open('hand_keypoints.csv', 'w', newline='') as csvfile:
-    csv_writer = csv.writer(csvfile)
+with open('csvFromJson.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(header)
 
-    # Write header (optional)
-    csv_writer.writerow(['A (Left Hand Keypoints)', 'B (Right Hand Keypoints)'])
+    for file_name in file_list_sorted:
+        with open(file_name, 'r') as f:
+            json_data = json.load(f)
+        left = json_data['people']['hand_left_keypoints_2d']
+        right = json_data['people']['hand_right_keypoints_2d']
+        
+        for index, value in enumerate(left):    #1 구분자 제거
+            if value == 1:
+                del left[index]
+        for index, value in enumerate(right):
+            if value == 1:
+                del right[index]
 
-    # Write the hand keypoints data
-    for left_point, right_point in zip(left, right):
-        csv_writer.writerow([left_point, right_point])
+        writer.writerow(left + right)  # Move this line inside the 'with' block

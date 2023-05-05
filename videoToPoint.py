@@ -8,17 +8,38 @@ import pandas as pd
 mp_drawing = mp.solutions.drawing_utils
 mp_holistic = mp.solutions.holistic
 
-filename = 'left_hand_thumbs.csv'
-# csv.writer 객체 생성
-writer = csv.writer(open(filename, 'w', newline=''))
-writer.writerow(['X', 'Y'])  # 헤더(컬럼 이름) 작성
+filename = 'csvFromVideo.csv'
 
 
-cap = cv2.VideoCapture('C:/Users/KuShiro/Documents/수어 관련 데이터/New_sample/원천데이터/REAL/WORD/01/NIA_SL_WORD1501_REAL01_F.mp4')
-# Initiate holistic model
-with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-    
+
+# csv 파일 header 정의
+# header = []
+# for hand in ['left', 'right']:
+#     for finger in ['wrist', 'thumb', 'index', 'middle', 'ring', 'pinky']:
+#         for coordinate in ['x', 'y', 'z']:
+#             header.append(f'{hand}_{finger}_{coordinate}')
+
+header = []
+for hand in ['left', 'right']:
+    for point_idx in range(21):
+        header.append(f'{hand}_hand_{point_idx}_x')
+        header.append(f'{hand}_hand_{point_idx}_y')
+
+# Mediapipe holistic model 초기화
+with mp_holistic.Holistic(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+
+    cap = cv2.VideoCapture('C:/Users/KuShiro/Documents/수어 관련 데이터/New_sample/원천데이터/REAL/WORD/01/NIA_SL_WORD1501_REAL01_F.mp4')
+
+        # 파일에 header 쓰기
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(header)
+
     while cap.isOpened():
+        # csv 파일에 저장할 변수들 초기화
+        left_hand_points = []
+        right_hand_points = []
+        
         ret, frame = cap.read()
         # frame = cv2.flip(frame, 1)
         # Recolor Feed
@@ -59,18 +80,30 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
                                  mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
                                  )
         
-        # 엄지 손가락 좌표 값 추출 및 파일에 쓰기
-        if results.left_hand_landmarks is not None:
-            thumb_tip_x = results.left_hand_landmarks.landmark[mp_holistic.HandLandmark.THUMB_TIP].x
-            thumb_tip_y = results.left_hand_landmarks.landmark[mp_holistic.HandLandmark.THUMB_TIP].y
-            with open(filename, mode='a', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow([thumb_tip_x, thumb_tip_y])
-        cv2.imshow('Raw Webcam Feed', image)
 
+        # 엄지 손가락 좌표 값 추출 및 변수에 저장
+        if results.left_hand_landmarks is not None:
+            for idx, landmark in enumerate(results.left_hand_landmarks.landmark):
+                x = landmark.x * frame.shape[1]
+                y = landmark.y * frame.shape[0]
+                left_hand_points.append(x)
+                left_hand_points.append(y)
+
+        if results.right_hand_landmarks is not None:
+            for idx, landmark in enumerate(results.right_hand_landmarks.landmark):
+                x = landmark.x * frame.shape[1]
+                y = landmark.y * frame.shape[0]
+                right_hand_points.append(x)
+                right_hand_points.append(y)
+
+        # 변수를 csv 파일에 쓰기
+        with open(filename, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(left_hand_points + right_hand_points)
+
+        cv2.imshow('Raw Webcam Feed', image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-df1=pd.read_csv('left_hand_thumbs.csv')
-print(df1)
+
 cap.release()
 cv2.destroyAllWindows()
