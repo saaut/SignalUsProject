@@ -62,7 +62,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131230836;
+        int var3 = id.body_head_img;
         NavController var10000;
         if (var2 != null) {
             if (var2 == var3) {
@@ -76,7 +76,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
             }
         }
 
-        var3 = 2131230837;
+        var3 = id.body_top_img;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;
@@ -89,7 +89,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
             }
         }
 
-        var3 = 2131230835;
+        var3 = id.body_bottom_img;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

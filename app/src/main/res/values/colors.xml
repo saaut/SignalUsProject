@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="ivory">#f5f3ee</color>
     <color name="main_blue">#99ccff</color>
+    <color name="control_background">#99ccff</color>
+
 </resources>

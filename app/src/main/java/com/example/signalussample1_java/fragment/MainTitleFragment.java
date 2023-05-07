@@ -82,7 +82,7 @@ public final class MainTitleFragment extends Fragment implements View.OnClickLis
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131231018;
+        int var3 = id.maincharacter_img;
         if (var2 != null) {
             if (var2 == var3) {
                 NavController var4 = this.navController;
@@ -95,7 +95,7 @@ public final class MainTitleFragment extends Fragment implements View.OnClickLis
             }
         }
 
-        var3 = 2131230732;
+        var3 = id.SignalUSTitleimageView;
         if (var2 != null) {
             if (var2 == var3) {
                 TextView var10000 = (TextView)this._$_findCachedViewById(id.information_text);

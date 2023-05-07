@@ -62,7 +62,7 @@ public final class secondSelectBottomBackFragment extends Fragment implements Vi
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131231261;
+        int var3 = id.to_back_btn;
         NavController var10000;
         if (var2 != null) {
             if (var2 == var3) {
@@ -76,7 +76,7 @@ public final class secondSelectBottomBackFragment extends Fragment implements Vi
             }
         }
 
-        var3 = 2131230966;
+        var3 = id.hip_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("엉덩이");
@@ -84,7 +84,7 @@ public final class secondSelectBottomBackFragment extends Fragment implements Vi
             }
         }
 
-        var3 = 2131230827;
+        var3 = id.back_btn;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

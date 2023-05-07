@@ -66,7 +66,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131230963;
+        int var3 = id.head_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("머리");
@@ -74,7 +74,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230930;
+        var3 = id.eye_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("눈");
@@ -82,7 +82,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131231054;
+        var3 = id.mouth_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("입");
@@ -90,7 +90,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131231099;
+        var3 = id.nose_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("코");
@@ -98,7 +98,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230914;
+        var3 = id.ear_left_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 귀");
@@ -106,7 +106,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230915;
+        var3 = id.ear_right_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 귀");
@@ -114,7 +114,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131231090;
+        var3 = id.neck_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("목");
@@ -122,7 +122,7 @@ public final class secondSelectFaceFragment extends Fragment implements View.OnC
             }
         }
 
-        var3 = 2131230827;
+        var3 = id.back_btn;
         if (var2 != null) {
             if (var2 == var3) {
                 NavController var10000 = this.navController;

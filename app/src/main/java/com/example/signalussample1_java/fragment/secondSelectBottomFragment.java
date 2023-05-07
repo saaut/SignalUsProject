@@ -66,7 +66,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131231260;
+        int var3 = id.to_back_btn;
         NavController var10000;
         if (var2 != null) {
             if (var2 == var3) {
@@ -80,7 +80,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131231119;
+        var3 = id.pelvic_left_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 골반");
@@ -88,7 +88,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131231120;
+        var3 = id.pelvic_right_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 골반");
@@ -96,7 +96,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131231006;
+        var3 = id.leg_left_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 다리");
@@ -104,7 +104,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131231007;
+        var3 = id.leg_right_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 다리");
@@ -112,7 +112,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131230946;
+        var3 = id.foot_left_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 발");
@@ -120,7 +120,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131230947;
+        var3 = id.foot_right_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 발");
@@ -128,7 +128,7 @@ public final class secondSelectBottomFragment extends Fragment implements View.O
             }
         }
 
-        var3 = 2131230827;
+        var3 = id.back_btn;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

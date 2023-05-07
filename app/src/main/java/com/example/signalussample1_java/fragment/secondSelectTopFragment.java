@@ -67,7 +67,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131231260;
+        int var3 = id.to_back_btn;
         NavController var10000;
         if (var2 != null) {
             if (var2 == var3) {
@@ -81,7 +81,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131231184;
+        var3 = id.shoulder_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("어깨");
@@ -89,7 +89,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230819;
+        var3 = id.arm_left_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 팔");
@@ -97,7 +97,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230820;
+        var3 = id.arm_right_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 팔");
@@ -105,7 +105,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230860;
+        var3 = id.chest_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("가슴");
@@ -113,7 +113,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131231217;
+        var3 = id.stomach_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("배");
@@ -121,7 +121,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230961;
+        var3 = id.hand_left_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("왼쪽 손");
@@ -129,7 +129,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230962;
+        var3 = id.hand_right_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("오른쪽 손");
@@ -137,7 +137,7 @@ public final class secondSelectTopFragment extends Fragment implements View.OnCl
             }
         }
 
-        var3 = 2131230827;
+        var3 = id.back_btn;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;

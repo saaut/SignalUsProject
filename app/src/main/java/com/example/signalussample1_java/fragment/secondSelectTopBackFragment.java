@@ -61,7 +61,7 @@ public final class secondSelectTopBackFragment extends Fragment implements View.
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
-        int var3 = 2131231261;
+        int var3 = id.to_front_btn;
         NavController var10000;
         if (var2 != null) {
             if (var2 == var3) {
@@ -75,7 +75,7 @@ public final class secondSelectTopBackFragment extends Fragment implements View.
             }
         }
 
-        var3 = 2131230828;
+        var3 = id.back_shadow;
         if (var2 != null) {
             if (var2 == var3) {
                 this.navigateWithValue("등");
@@ -83,7 +83,7 @@ public final class secondSelectTopBackFragment extends Fragment implements View.
             }
         }
 
-        var3 = 2131230827;
+        var3 = id.back_btn;
         if (var2 != null) {
             if (var2 == var3) {
                 var10000 = this.navController;
