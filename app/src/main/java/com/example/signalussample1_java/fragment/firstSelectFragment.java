@@ -56,6 +56,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
         ((ImageView)this._$_findCachedViewById(id.body_head_img)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.body_top_img)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.body_bottom_img)).setOnClickListener((View.OnClickListener)this);
+
         Toast.makeText(getContext(), "어디가 아파서 오셨어요?", Toast.LENGTH_SHORT).show();
 
     }
@@ -98,6 +99,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
                 }
 
                 var10000.navigate(R.id.action_firstSelectFragment_to_secondSelectBottomFragment);
+                return;
             }
         }
 

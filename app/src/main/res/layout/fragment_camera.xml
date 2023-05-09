@@ -10,13 +10,13 @@
         tools:context=".fragment.cameraFragment">
 
         <com.example.signalussample1_java.fragment.VideoRecordingView
+            android:id="@+id/preview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:id="@+id/preview"
             app:layout_constraintBottom_toTopOf="@+id/control"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/imageView12" />
 
         <FrameLayout
             android:id="@+id/control"
@@ -62,10 +62,10 @@
             android:src="@drawable/face_area"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.571"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline2"
-            app:layout_constraintVertical_bias="0.365" />
+            app:layout_constraintVertical_bias="0.152" />
 
         <TextView
             android:id="@+id/textView"
@@ -117,7 +117,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.831" />
+            app:layout_constraintVertical_bias="0.85" />
 
         <TextView
             android:id="@+id/Result"
@@ -139,6 +139,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_end="674dp" />
+
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout></layout>

@@ -2,17 +2,16 @@ package com.example.signalussample1_java.fragment;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.*;
-import android.hardware.Camera;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.CamcorderProfile;
+import android.media.Image;
+import android.media.ImageReader;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,8 +21,6 @@ import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,8 +38,7 @@ import com.example.signalussample1_java.R;
 import com.example.signalussample1_java.R.id;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -51,7 +47,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import kotlin.Metadata;
 import kotlin.jvm.internal.Intrinsics;
@@ -144,7 +139,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 .check();
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_camera, container, false);
-        mCamId = CAM_REAR;
+        mCamId = CAM_FRONT;
         mCompositeDisposable = new CompositeDisposable();
 
         String var4 = "";
@@ -171,7 +166,10 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
         ((ImageView)this._$_findCachedViewById(id.back_btn)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.stt_btn)).setOnClickListener((View.OnClickListener)this);
+        ((ImageView)this._$_findCachedViewById(id.switchImgBtn)).setOnClickListener((View.OnClickListener)this);
+        ((ImageView)this._$_findCachedViewById(id.imageView12)).setOnClickListener((View.OnClickListener)this);
 
+        startCaptureImg();
 
     }
 
@@ -192,19 +190,9 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             }
         }
 
-        var3 = id.back_btn;
-        if (var2 != null) {
+        var3 = id.switchImgBtn;
+        if(var2!=null) {
             if (var2 == var3) {
-                var10000 = this.navController;
-                if (var10000 == null) {
-                    Intrinsics.throwUninitializedPropertyAccessException("navController");
-                }
-
-                var10000.popBackStack();
-            }
-        }
-        switch (var2) {
-            case R.id.switchImgBtn:
                 switch (mCamId) {
                     case CAM_REAR:
                         mCamId = CAM_FRONT;
@@ -218,9 +206,26 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 }
                 closeCamera();
                 openCamera(binding.preview.getWidth(), binding.preview.getHeight());
-                break;
+            }
         }
+        var3 = id.imageView12;
+        if(var2!=null){
+            if(var2==var3){
+                startCaptureImg();
 
+            }
+        }
+        var3 = id.back_btn;
+        if (var2 != null) {
+            if (var2 == var3) {
+                var10000 = this.navController;
+                if (var10000 == null) {
+                    Intrinsics.throwUninitializedPropertyAccessException("navController");
+                }
+
+                var10000.popBackStack();
+            }
+        }
 
     }
 
@@ -264,62 +269,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         }
     };
 
-    /* PermissionListener permission = new PermissionListener() {
-         public void onPermissionGranted() {//권한 허용되면 카메라 실행
-             Toast.makeText(getContext(), "권한 허가", Toast.LENGTH_SHORT).show();
-
-             camera = Camera.open();
-             camera.setDisplayOrientation(90);
-             surfaceView = (SurfaceView)_$_findCachedViewById(R.id.surfaceView);
-             surfaceHolder = surfaceView.getHolder();
-             surfaceHolder.addCallback(cameraFragment.this);
-             surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-         }
-
-         @Override
-         public void onPermissionDenied(List<String> deniedPermissions) {
-             Toast.makeText(getContext(), "권한 거부", Toast.LENGTH_SHORT).show();
-
-         }
-
-     };
-
-     @Override
-     public void surfaceCreated(SurfaceHolder holder) {
-
-     }
-
-     private void refreshCamera(Camera camera) {//카메라를 초기화해주는 작업
-         if (surfaceHolder.getSurface() == null) {
-             return;
-         }
-
-         try {
-             camera.stopPreview();
-         } catch (Exception e) {
-             e.printStackTrace();
-         }
-
-         setCamera(camera);
-     }
-
-     private void setCamera(Camera cam) {
-
-         camera = cam;
-
-     }
-
-
-     @Override
-     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {//surface의 변화 감지
-         refreshCamera(camera);
-     }
-
-     @Override
-     public void surfaceDestroyed(SurfaceHolder holder) {
-
-     }*/
     public void onActivityCreated(@androidx.annotation.Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         assert getActivity() != null;
@@ -425,6 +374,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             activity.finish();
         }
 
+
     }
 
     private static Size chooseVideoSize(Size[] choices) {
@@ -478,8 +428,10 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     //미리보기 기능
     private void startPreview() {
         if(null == mCameraDevice || !binding.preview.isAvailable() || null == mPreviewSize) {
+            Toast.makeText(getContext(), "CameraDeviceIsNotAvailable", Toast.LENGTH_SHORT).show();
             return;
         }
+
         try {
             closePreviewSession();
             SurfaceTexture texture = binding.preview.getSurfaceTexture();
@@ -506,6 +458,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+
     }
 
     private void updatePreview() {
@@ -595,35 +548,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
     }
 
-    //영상녹화 설정
-    private void setUpMediaRecorder() throws IOException {
-        final Activity activity = getActivity();
-        if(null == activity) return;
-
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        if (mNextVideoAbsolutePath == null || mNextVideoAbsolutePath.isEmpty()) {
-            mNextVideoAbsolutePath = getVideoFilePath();
-        }
-        mMediaRecorder.setOutputFile(mNextVideoAbsolutePath);
-        mMediaRecorder.setVideoEncodingBitRate(10000000);
-        mMediaRecorder.setVideoFrameRate(30);
-        mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
-        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-
-        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        switch (mSensorOrientation) {
-            case SENSOR_ORIENTATION_DEFAULT_DEGREES:
-                mMediaRecorder.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation));
-                break;
-            case SENSOR_ORIENTATION_INVERSE_DEGREES:
-                mMediaRecorder.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation));
-                break;
-        }
-        mMediaRecorder.prepare();
-    }
 
     //파일 이름 및 저장경로를 만듭니다.
     private String getVideoFilePath() {
@@ -634,75 +558,100 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         if(!dst.exists()) dst.mkdirs();
         return path + System.currentTimeMillis() + ".mp4";
     }
-
-    //녹화시작
-    private void startRecordingVideo() {
-        if (null == mCameraDevice || !binding.preview.isAvailable() || null == mPreviewSize) {
+    //캡처와 전송시작
+    private void startCaptureImg() {
+        if (null == mCameraDevice || !binding.preview.isAvailable() || null == mPreviewSize) {//카메라가 사용할 수 있는 상태인지 확인
+            Log.e(TAG, "mCameraDevice is null, return");
             return;
         }
-        assert getActivity() != null;
+        Toast.makeText(getContext(), "이미지가져오기 실행", Toast.LENGTH_SHORT).show();
 
+        assert getActivity() != null;//activity와 fragment가 잘 attach되어있고, 아직 destroy되지 않았다는 뜻
+        SurfaceTexture texture = binding.preview.getSurfaceTexture();//Preview texture과 관련된 surfacetexture를 찾는다.
+
+        assert texture !=null;//Preview texture를 사용할 수 있는 지 확인
         try {
-            closePreviewSession();
-            setUpMediaRecorder();
-            SurfaceTexture texture = binding.preview.getSurfaceTexture();
+            int width = 640;
+            int height = 480;
+
             assert texture != null;
-            mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+            ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);//JPEG 형식으로 캡처된 이미지를 수신할 ImageReader 인스턴스 생성
+            List<Surface> outputSurfaces = new ArrayList<Surface>(2);
+            outputSurfaces.add(reader.getSurface());
+            outputSurfaces.add(new Surface(texture));
 
-            List<Surface> surfaces = new ArrayList<>();
 
-            Surface previewSurface = new Surface(texture);
-            surfaces.add(previewSurface);
-            mCaptureRequestBuilder.addTarget(previewSurface);
+            final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            captureBuilder.addTarget(reader.getSurface());
+            captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);//카메라실행을 위한 세팅. 카메라 캡처 요청에 대한 제어 모드를 자동으로 설정한다.
 
-            Surface recordSurface = mMediaRecorder.getSurface();
-            surfaces.add(recordSurface);
-            mCaptureRequestBuilder.addTarget(recordSurface);
 
-            mCameraDevice.createCaptureSession(surfaces, new CameraCaptureSession.StateCallback() {
+            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {//이미지를 사용할 수 있을 때 트리거되는 OnImageAvailableListener를 만든다.
                 @Override
-                public void onConfigured(@NonNull CameraCaptureSession session) {
-                    mCameraCaptureSession = session;
-                    updatePreview();
-                    getActivity().runOnUiThread(() -> {
-                        mIsRecordingVideo = true;
+                public void onImageAvailable(ImageReader reader) {//readerListender 내부에서 캡처된 이미지를 획득
+                    Image image = null;
+                    try {
+                        image = reader.acquireLatestImage();
+                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                        byte[] bytes = new byte[buffer.remaining()];
+                        buffer.get(bytes);
+                        Toast.makeText(getContext(), "바이트 데이터 얻기 성공", Toast.LENGTH_SHORT).show();
 
-                        mMediaRecorder.start();
-                    });
-                }
-
-                @Override
-                public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-                    Activity activity = getActivity();
-                    if (null != activity) {
-                        Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
+                        sendImageToServer(bytes); // Call your method to send the byte data to the server
+                    } finally {
+                        if (image != null) {
+                            image.close();
+                        }
                     }
                 }
+            };
+
+            HandlerThread thread = new HandlerThread("CameraPicture");
+            thread.start();
+            final Handler backgroudHandler = new Handler(thread.getLooper());
+            reader.setOnImageAvailableListener(readerListener, backgroudHandler);
+
+            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
+                @Override
+                public void onCaptureCompleted(CameraCaptureSession session,//캡처 완료 시 서버로 전송
+                                               CaptureRequest request, TotalCaptureResult result) {
+                    super.onCaptureCompleted(session, request, result);
+                    startPreview();
+                }
+
+            };
+
+            mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(CameraCaptureSession session) {
+                    try {
+                        session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+
+                    }
+                }
+
+                @Override
+                public void onConfigureFailed(CameraCaptureSession session) {
+
+                }
             }, mBackgroundHandler);
-        } catch (CameraAccessException | IOException e) {
+
+
+
+        } catch (CameraAccessException e) {
             e.printStackTrace();
         }
     }
-
-    //녹화 중지
-    private void stopRecordingVideo() {
-        mIsRecordingVideo = false;
-        mMediaRecorder.stop();
-        mMediaRecorder.reset();
-
-        Activity activity = getActivity();
-        if (null != activity) {
-            Toast.makeText(activity, "Video saved: " + mNextVideoAbsolutePath,
-                    Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
-            File file = new File(mNextVideoAbsolutePath);
-            // 아래 코드가 없으면 갤러리 저장 적용이 안됨.
-            if(!file.exists()) file.mkdir();
-            getActivity().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
-        }
-        mNextVideoAbsolutePath = null;
-        startPreview();
+    private void sendImageToServer(byte[] imageData) {
+        // Implement your networking code here to send the byte data to the server
+        // This can involve using libraries such as HttpURLConnection, OkHttp, Retrofit, etc.
+        // Construct an HTTP request, set headers and parameters, and attach the byte data
+        // to the request body before sending it to the server.
+        Toast.makeText(getContext(), "서버로 이미지 전송 시도", Toast.LENGTH_SHORT).show();
     }
+
     static class CompareSizesByArea implements Comparator<Size> {
         @Override
         public int compare(Size lhs, Size rhs) {
@@ -715,7 +664,9 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     // $FF: synthetic method
     public void onDestroyView() {
+        stopBackgroundThread();
         super.onDestroyView();
         this._$_clearFindViewByIdCache();
     }
 }
+

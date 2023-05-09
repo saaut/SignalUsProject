@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -101,9 +103,9 @@ public final class MainTitleFragment extends Fragment implements View.OnClickLis
                 TextView var10000 = (TextView)this._$_findCachedViewById(id.information_text);
                 Intrinsics.checkNotNullExpressionValue(var10000, "information_text");
                 var10000.setText((CharSequence)"시그널 어스");
+
             }
         }
-
     }
 
     public View _$_findCachedViewById(int var1) {
