@@ -1,5 +1,6 @@
 package com.example.signalussample1_java.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -13,7 +14,6 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -37,8 +37,12 @@ import androidx.navigation.Navigation;
 import com.example.signalussample1_java.R;
 import com.example.signalussample1_java.R.id;
 
-import java.io.File;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,8 +73,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     public NavController navController;
     private HashMap _$_findViewCache;
     private static final String TAG = "VideoFragment";
-    //Superbrain 대신 원하는 폴더이름을 만들면 됩니다.
-    private static final String DETAIL_PATH = "DCIM/SignalUs/";
 
     FragmentCameraBinding binding;
 
@@ -80,6 +82,15 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private static final String CAM_REAR = "0";
 
     private String mCamId;
+    private Handler mHandler;//TCP connection을 thread상에서 진행할 것이기 때문에 Handler를 선언해준다.
+    private Socket socket;
+    private byte[] sendByte;
+
+
+    private DataOutputStream dos;
+    private DataInputStream dis;
+    private String ip ="192.168.248.39";
+    private int port=3000;
 
     CameraCaptureSession mCameraCaptureSession;
     CameraDevice mCameraDevice;
@@ -97,21 +108,16 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     Handler mBackgroundHandler;
 
     MediaRecorder mMediaRecorder;
+/*
+    private Hands hands;
+    private CameraInput cameraInput;
+    private SolutionGlSurfaceView glSurfaceView;
+    */
 
-    private String mNextVideoAbsolutePath;
     private boolean mIsRecordingVideo;
-    //public Handler handler;
+    public Handler handler;
     public static cameraFragment newInstance() {
         return new cameraFragment();
-    }
-    @NotNull
-    public final String getBody_part() {
-        return this.body_part;
-    }
-
-    public final void setBody_part(@NotNull String var1) {
-        Intrinsics.checkNotNullParameter(var1, "<set-?>");
-        this.body_part = var1;
     }
 
     @NotNull
@@ -135,7 +141,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 .setPermissionListener(permission)
                 .setRationaleMessage("녹화를 위하여 권한을 허용해주세요.")
                 .setDeniedMessage("권한이 거부되었습니다. 설정 > 권한에서 허용해주세요.")
-                .setPermissions(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO)
+                .setPermissions(android.Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET)
                 .check();
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_camera, container, false);
@@ -148,8 +154,10 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             var4 = arguments.getString("body_part", "");
         }
         body_part = var4;
+        connect();//서버 연결
 
         return binding.getRoot();
+
     }
 
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
@@ -169,7 +177,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         ((ImageView)this._$_findCachedViewById(id.switchImgBtn)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.imageView12)).setOnClickListener((View.OnClickListener)this);
 
-        startCaptureImg();
 
     }
 
@@ -211,7 +218,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         var3 = id.imageView12;
         if(var2!=null){
             if(var2==var3){
-                startCaptureImg();
 
             }
         }
@@ -228,8 +234,52 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         }
 
     }
+    /*
+    // mediapipe hands 라이브러리 사용하여 스트리밍 모드의 파이프라인을 설정한다.
+    private void setupStreamingModePipeline() {
+        // Initialize the Hands pipeline
+        hands = new Hands(
+                getContext(),
+                HandsOptions.builder()
+                        .setStaticImageMode(false)
+                        .setMaxNumHands(1)
+                        .setRunOnGpu(true)
+                        .build()
+        );
+        hands.setErrorListener((message, e) -> Log.e("TAG", "MediaPipe Hands error: " + message));
 
+        // Create the camera input and set the new frame listener to send frames to the Hands pipeline
+        cameraInput = new CameraInput(getActivity());
+        cameraInput.setNewFrameListener(hands::send);
 
+        // Create the GLSurfaceView for rendering the results
+        glSurfaceView = new SolutionGlSurfaceView(getContext(), hands.getGlContext(), hands.getGlMajorVersion());
+        glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
+        glSurfaceView.setRenderInputImage(true);
+
+        // Set the result listener to update the GLSurfaceView with the hands data and request rendering
+        hands.setResultListener(result -> {
+            glSurfaceView.setRenderData(result);
+            glSurfaceView.requestRender();
+        });
+
+        glSurfaceView.post(this::startCamera);
+
+        // Add the GLSurfaceView to the FrameLayout defined in activity_main.xml
+        binding.control.removeAllViewsInLayout();
+        binding.control.addView(glSurfaceView);
+        glSurfaceView.setVisibility(View.VISIBLE);
+        binding.control.requestLayout();
+    }
+    private void startCamera() {
+        cameraInput.start(
+                getActivity(),
+                hands.getGlContext(),
+                CameraInput.CameraFacing.FRONT,
+                glSurfaceView.getWidth(),
+                glSurfaceView.getHeight()
+        );
+    }*/
     public View _$_findCachedViewById(int var1) {
         if (this._$_findViewCache == null) {
             this._$_findViewCache = new HashMap();
@@ -259,6 +309,15 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         @Override
         public void onPermissionGranted() {
             Toast.makeText(getContext(), "권한 허가", Toast.LENGTH_SHORT).show();
+            /*setupStreamingModePipeline();
+            glSurfaceView.post(new Runnable() {
+                @Override
+                public void run() {
+                    //startCamera();
+                }
+            });
+            glSurfaceView.setVisibility(View.VISIBLE);
+*/
 
         }
 
@@ -379,7 +438,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     private static Size chooseVideoSize(Size[] choices) {
         for (Size size : choices) {
-            // 해상도에 맞게 설정하면 될듯?
+            // 해상도에 맞게 설정
             if(size.getWidth() == size.getHeight() * 4 / 3 && size.getWidth() <= 1080){
                 return size;
             }
@@ -548,16 +607,77 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
     }
 
+    void connect(){//서버에 연결
+        Thread connectThread = new Thread() {
+            public void run() {
+                // Server connection. Socket communication implementation
+                try {
+                    socket = new Socket(ip, port);
+                    Log.w("Server connected", "Server connected");
+                } catch (IOException e1) {
+                    Log.w("Could not connect to server", "Could not connect to server");
+                    e1.printStackTrace();
+                }
 
-    //파일 이름 및 저장경로를 만듭니다.
-    private String getVideoFilePath() {
+                try {
+                    dos = new DataOutputStream(socket.getOutputStream());
+                    dis = new DataInputStream(socket.getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.w("Buffer", "Error creating buffer");
+                }
 
-        final File dir = Environment.getExternalStorageDirectory().getAbsoluteFile();
-        String path = dir.getPath() + "/" + DETAIL_PATH;
-        File dst = new File(path);
-        if(!dst.exists()) dst.mkdirs();
-        return path + System.currentTimeMillis() + ".mp4";
+                Log.w("Buffer", "Buffer created successfully");
+            }
+        };
+        connectThread.start();
+        try {
+            connectThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Connection established");
+
     }
+    private void sendToServer(byte[] bytes){
+        Thread sendThread = new Thread() {
+            public void run() {
+                try {
+                    dos.writeUTF(Integer.toString(bytes.length)); // Send the length of the byte array as a string
+                    dos.flush();
+
+                    dos.write(bytes); // Send the byte array
+                    dos.flush();
+
+                    String result = readUTF8(dis); // Read the response from the server
+
+                    socket.close();
+                } catch (Exception e) {
+                    Log.w("Error", "An error occurred while sending data");
+                    e.printStackTrace();
+                }
+            }
+        };
+        sendThread.start();
+        try {
+            sendThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Data sent successfully");
+    }
+    public String readUTF8 (DataInputStream in) throws IOException {
+        int length = in.readInt();//문자열의 길이를 받는다.
+        byte[] encoded = new byte[length];//데이터 손실 없이 정확한 길이의 문자열을 받기 위해 bytearray를 생성한다.
+        in.readFully(encoded, 0, length);//해당 길이의 bytearray를 받는다.
+        return new String(encoded, StandardCharsets.UTF_8);//문자열로 바꾸기 위해 UTF8로 디코딩을 해준다.
+    }
+
+
+
+
+
+
     //캡처와 전송시작
     private void startCaptureImg() {
         if (null == mCameraDevice || !binding.preview.isAvailable() || null == mPreviewSize) {//카메라가 사용할 수 있는 상태인지 확인
@@ -649,6 +769,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         // This can involve using libraries such as HttpURLConnection, OkHttp, Retrofit, etc.
         // Construct an HTTP request, set headers and parameters, and attach the byte data
         // to the request body before sending it to the server.
+        sendToServer(imageData);
         Toast.makeText(getContext(), "서버로 이미지 전송 시도", Toast.LENGTH_SHORT).show();
     }
 
@@ -660,7 +781,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     }
 
     CompositeDisposable mCompositeDisposable;
-// 여기까지는 타이머 부분이기 때문에 사용안하셔도 됩니다.
 
     // $FF: synthetic method
     public void onDestroyView() {
