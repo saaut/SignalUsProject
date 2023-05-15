@@ -1,5 +1,5 @@
 package com.example.signalussample1_java.fragment;
-/*
+
 import android.opengl.GLES20;
 import android.util.Log;
 import com.google.common.collect.UnmodifiableIterator;
@@ -47,7 +47,7 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
     private static final String VERTEX_SHADER = "uniform mat4 uProjectionMatrix;\nattribute vec4 vPosition;\nvoid main() {\n  gl_Position = uProjectionMatrix * vPosition;\n}";
     private static final String FRAGMENT_SHADER = "precision mediump float;\nuniform vec4 uColor;\nvoid main() {\n  gl_FragColor = uColor;\n}";
     @NotNull
-    public static final Companion Companion = new Companion((DefaultConstructorMarker)null);
+    public static final Companion Companion = new Companion((DefaultConstructorMarker) null);
 
     private final int loadShader(int type, String shaderCode) {
         int shader = GLES20.glCreateShader(type);
@@ -77,25 +77,25 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
             int numHands = result.multiHandLandmarks().size();
             int i = 0;
 
-            for(int var5 = numHands; i < var5; ++i) {
+            for (int var5 = numHands; i < var5; ++i) {
                 Object var10000 = result.multiHandedness().get(i);
                 Intrinsics.checkNotNullExpressionValue(var10000, "result.multiHandedness()[i]");
-                boolean isLeftHand = Intrinsics.areEqual(((ClassificationProto.Classification)var10000).getLabel(), "Left");
+                boolean isLeftHand = Intrinsics.areEqual(((ClassificationProto.Classification) var10000).getLabel(), "Left");
                 Object var10001 = result.multiHandLandmarks().get(i);
                 Intrinsics.checkNotNullExpressionValue(var10001, "result.multiHandLandmarks()[i]");
-                List var13 = ((LandmarkProto.NormalizedLandmarkList)var10001).getLandmarkList();
+                List var13 = ((LandmarkProto.NormalizedLandmarkList) var10001).getLandmarkList();
                 Intrinsics.checkNotNullExpressionValue(var13, "result.multiHandLandmarks()[i].landmarkList");
                 this.drawConnections(var13, isLeftHand ? LEFT_HAND_CONNECTION_COLOR : RIGHT_HAND_CONNECTION_COLOR);
                 int ind = 0;
                 var10000 = result.multiHandLandmarks().get(i);
                 Intrinsics.checkNotNullExpressionValue(var10000, "result.multiHandLandmarks()[i]");
-                List var12 = ((LandmarkProto.NormalizedLandmarkList)var10000).getLandmarkList();
+                List var12 = ((LandmarkProto.NormalizedLandmarkList) var10000).getLandmarkList();
                 Intrinsics.checkNotNullExpressionValue(var12, "result.multiHandLandmarks()[i].landmarkList");
 
-                for(int var8 = ((Collection)var12).size(); ind < var8; ++ind) {
+                for (int var8 = ((Collection) var12).size(); ind < var8; ++ind) {
                     var10000 = result.multiHandLandmarks().get(i);
                     Intrinsics.checkNotNullExpressionValue(var10000, "result.multiHandLandmarks()[i]");
-                    LandmarkProto.NormalizedLandmark lm = (LandmarkProto.NormalizedLandmark)((LandmarkProto.NormalizedLandmarkList)var10000).getLandmarkList().get(ind);
+                    LandmarkProto.NormalizedLandmark lm = (LandmarkProto.NormalizedLandmark) ((LandmarkProto.NormalizedLandmarkList) var10000).getLandmarkList().get(ind);
                     StringBuilder var14 = (new StringBuilder()).append("LandMark[").append(ind).append("] | x : ");
                     Intrinsics.checkNotNullExpressionValue(lm, "lm");
                     Log.d("HandsResultGlRenderer", var14.append(lm.getX()).append(", y : ").append(lm.getY()).append(", z : ").append(lm.getZ()).toString());
@@ -103,10 +103,10 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
 
                 var10000 = result.multiHandLandmarks().get(i);
                 Intrinsics.checkNotNullExpressionValue(var10000, "result.multiHandLandmarks()[i]");
-                Iterator var11 = ((LandmarkProto.NormalizedLandmarkList)var10000).getLandmarkList().iterator();
+                Iterator var11 = ((LandmarkProto.NormalizedLandmarkList) var10000).getLandmarkList().iterator();
 
-                while(var11.hasNext()) {
-                    LandmarkProto.NormalizedLandmark landmark = (LandmarkProto.NormalizedLandmark)var11.next();
+                while (var11.hasNext()) {
+                    LandmarkProto.NormalizedLandmark landmark = (LandmarkProto.NormalizedLandmark) var11.next();
                     Intrinsics.checkNotNullExpressionValue(landmark, "landmark");
                     this.drawCircle(landmark.getX(), landmark.getY(), isLeftHand ? LEFT_HAND_LANDMARK_COLOR : RIGHT_HAND_LANDMARK_COLOR);
                     this.drawHollowCircle(landmark.getX(), landmark.getY(), isLeftHand ? LEFT_HAND_HOLLOW_CIRCLE_COLOR : RIGHT_HAND_HOLLOW_CIRCLE_COLOR);
@@ -119,7 +119,7 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
     // $FF: synthetic method
     // $FF: bridge method
     public void renderResult(ImageSolutionResult var1, float[] var2) {
-        this.renderResult((HandsResult)var1, var2);
+        this.renderResult((HandsResult) var1, var2);
     }
 
     public final void release() {
@@ -130,15 +130,15 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
         GLES20.glUniform4fv(this.colorHandle, 1, colorArray, 0);
         UnmodifiableIterator var4 = Hands.HAND_CONNECTIONS.iterator();
 
-        while(var4.hasNext()) {
-            Hands.Connection c = (Hands.Connection)var4.next();
-            LandmarkProto.NormalizedLandmark start = (LandmarkProto.NormalizedLandmark)handLandmarkList.get(c.start());
-            LandmarkProto.NormalizedLandmark end = (LandmarkProto.NormalizedLandmark)handLandmarkList.get(c.end());
+        while (var4.hasNext()) {
+            Hands.Connection c = (Hands.Connection) var4.next();
+            LandmarkProto.NormalizedLandmark start = (LandmarkProto.NormalizedLandmark) handLandmarkList.get(c.start());
+            LandmarkProto.NormalizedLandmark end = (LandmarkProto.NormalizedLandmark) handLandmarkList.get(c.end());
             float[] vertex = new float[]{start.getX(), start.getY(), end.getX(), end.getY()};
             FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(vertex.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer().put(vertex);
             vertexBuffer.position(0);
             GLES20.glEnableVertexAttribArray(this.positionHandle);
-            GLES20.glVertexAttribPointer(this.positionHandle, 2, 5126, false, 0, (Buffer)vertexBuffer);
+            GLES20.glVertexAttribPointer(this.positionHandle, 2, 5126, false, 0, (Buffer) vertexBuffer);
             GLES20.glDrawArrays(1, 0, 2);
         }
 
@@ -153,18 +153,18 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
         vertices[2] = 0.0F;
         int i = 1;
 
-        for(byte var7 = (byte) vertexCount; i < var7; ++i) {
-            float angle = 2.0F * (float)i * (float)Math.PI / (float)120;
+        for (byte var7 = (byte) vertexCount; i < var7; ++i) {
+            float angle = 2.0F * (float) i * (float) Math.PI / (float) 120;
             int currentIndex = 3 * i;
-            vertices[currentIndex] = x + (float)((double)0.008F * Math.cos((double)angle));
-            vertices[currentIndex + 1] = y + (float)((double)0.008F * Math.sin((double)angle));
+            vertices[currentIndex] = x + (float) ((double) 0.008F * Math.cos((double) angle));
+            vertices[currentIndex + 1] = y + (float) ((double) 0.008F * Math.sin((double) angle));
             vertices[currentIndex + 2] = 0.0F;
         }
 
         FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer().put(vertices);
         vertexBuffer.position(0);
         GLES20.glEnableVertexAttribArray(this.positionHandle);
-        GLES20.glVertexAttribPointer(this.positionHandle, 3, 5126, false, 0, (Buffer)vertexBuffer);
+        GLES20.glVertexAttribPointer(this.positionHandle, 3, 5126, false, 0, (Buffer) vertexBuffer);
         GLES20.glDrawArrays(6, 0, vertexCount);
     }
 
@@ -174,18 +174,18 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
         float[] vertices = new float[vertexCount * 3];
         int i = 0;
 
-        for(byte var7 = (byte) vertexCount; i < var7; ++i) {
-            float angle = 2.0F * (float)i * (float)Math.PI / (float)120;
+        for (byte var7 = (byte) vertexCount; i < var7; ++i) {
+            float angle = 2.0F * (float) i * (float) Math.PI / (float) 120;
             int currentIndex = 3 * i;
-            vertices[currentIndex] = x + (float)((double)0.01F * Math.cos((double)angle));
-            vertices[currentIndex + 1] = y + (float)((double)0.01F * Math.sin((double)angle));
+            vertices[currentIndex] = x + (float) ((double) 0.01F * Math.cos((double) angle));
+            vertices[currentIndex + 1] = y + (float) ((double) 0.01F * Math.sin((double) angle));
             vertices[currentIndex + 2] = 0.0F;
         }
 
         FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer().put(vertices);
         vertexBuffer.position(0);
         GLES20.glEnableVertexAttribArray(this.positionHandle);
-        GLES20.glVertexAttribPointer(this.positionHandle, 3, 5126, false, 0, (Buffer)vertexBuffer);
+        GLES20.glVertexAttribPointer(this.positionHandle, 3, 5126, false, 0, (Buffer) vertexBuffer);
         GLES20.glDrawArrays(3, 0, vertexCount);
     }
 
@@ -203,5 +203,6 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
         public Companion(DefaultConstructorMarker $constructor_marker) {
             this();
         }
-    }*/
+    }
+}
 

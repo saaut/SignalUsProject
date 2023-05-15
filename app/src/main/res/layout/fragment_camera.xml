@@ -21,12 +21,14 @@
         <FrameLayout
             android:id="@+id/control"
             android:layout_width="match_parent"
-            android:layout_height="11dp"
+            android:layout_height="500dp"
             android:background="@color/control_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.007"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintHorizontal_bias="0.038"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.333">
 
 
         </FrameLayout>

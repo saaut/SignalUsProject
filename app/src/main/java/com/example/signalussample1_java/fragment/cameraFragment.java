@@ -58,6 +58,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.example.signalussample1_java.databinding.FragmentCameraBinding;
+import com.google.mediapipe.solutioncore.CameraInput;
+import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
+import com.google.mediapipe.solutions.hands.Hands;
+import com.google.mediapipe.solutions.hands.HandsOptions;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
 
@@ -89,7 +93,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     private DataOutputStream dos;
     private DataInputStream dis;
-    private String ip ="192.168.248.39";
+    private String ip ="172.16.0.36";
     private int port=3000;
 
     CameraCaptureSession mCameraCaptureSession;
@@ -108,11 +112,11 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     Handler mBackgroundHandler;
 
     MediaRecorder mMediaRecorder;
-/*
+
     private Hands hands;
     private CameraInput cameraInput;
     private SolutionGlSurfaceView glSurfaceView;
-    */
+
 
     private boolean mIsRecordingVideo;
     public Handler handler;
@@ -141,7 +145,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 .setPermissionListener(permission)
                 .setRationaleMessage("녹화를 위하여 권한을 허용해주세요.")
                 .setDeniedMessage("권한이 거부되었습니다. 설정 > 권한에서 허용해주세요.")
-                .setPermissions(android.Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET)
+                .setPermissions(android.Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.RECORD_AUDIO, Manifest.permission.INTERNET)
                 .check();
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_camera, container, false);
@@ -154,7 +158,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             var4 = arguments.getString("body_part", "");
         }
         body_part = var4;
-        connect();//서버 연결
+        //connect();//서버 연결
 
         return binding.getRoot();
 
@@ -212,7 +216,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                         break;
                 }
                 closeCamera();
-                openCamera(binding.preview.getWidth(), binding.preview.getHeight());
+                //openCamera(binding.preview.getWidth(), binding.preview.getHeight());
             }
         }
         var3 = id.imageView12;
@@ -234,7 +238,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         }
 
     }
-    /*
+
     // mediapipe hands 라이브러리 사용하여 스트리밍 모드의 파이프라인을 설정한다.
     private void setupStreamingModePipeline() {
         // Initialize the Hands pipeline
@@ -279,7 +283,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 glSurfaceView.getWidth(),
                 glSurfaceView.getHeight()
         );
-    }*/
+    }
     public View _$_findCachedViewById(int var1) {
         if (this._$_findViewCache == null) {
             this._$_findViewCache = new HashMap();
@@ -309,7 +313,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         @Override
         public void onPermissionGranted() {
             Toast.makeText(getContext(), "권한 허가", Toast.LENGTH_SHORT).show();
-            /*setupStreamingModePipeline();
+            setupStreamingModePipeline();
             glSurfaceView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -317,7 +321,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 }
             });
             glSurfaceView.setVisibility(View.VISIBLE);
-*/
+
 
         }
 
@@ -339,7 +343,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
         startBackgroundThread();
         if (binding.preview.isAvailable()) {
-            openCamera(binding.preview.getWidth(), binding.preview.getHeight());
+            //openCamera(binding.preview.getWidth(), binding.preview.getHeight());
         } else {
             binding.preview.setSurfaceTextureListener(mSurfaceTextureListener);
         }
@@ -349,7 +353,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            openCamera(binding.preview.getWidth(), binding.preview.getHeight());
+            //openCamera(binding.preview.getWidth(), binding.preview.getHeight());
         }
 
         @Override
