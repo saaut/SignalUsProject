@@ -8,10 +8,10 @@ import re
 names = []
 
 # Path to the directory where the JSON file is located
-directory_path = '/Users/kushiro/Downloads/morpheme/01'
+directory_path = 'C:\\Users\\KuShiro\\Documents\\수어 관련 데이터\\학습용 데이터\\수어 영상\\1.Training\\morpheme\\01'
 
 # Find all JSON files in a directory that contain "_D_" in their name
-file_paths = glob.glob(directory_path + '/*_D_*.json')
+file_paths = glob.glob(directory_path + '\\*_D_*.json')
 
 # Define a regular expression pattern to extract the 4-digit number after "WORD"
 pattern = r'WORD(\d{4})'
@@ -21,7 +21,7 @@ for file_path in file_paths:
     file_name = os.path.basename(file_path)
     # Extract the number from the file name using the regular expression pattern
     number = int(re.search(pattern, file_name).group(1))
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
         i = data['data'][0]['attributes'][0]['name']
         names.append((number, file_name, i))
@@ -30,7 +30,7 @@ for file_path in file_paths:
 names = sorted(names, key=lambda x: x[0])
 
 # Output the extracted name values with their corresponding file names
-with open('answers_onlyD.csv', 'w', newline='') as f:
+with open('answers_onlyD.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.writer(f)
     writer.writerow(['File Name', 'Name'])
     for name in names:
