@@ -14,7 +14,7 @@ import inspect
 import pprint
 
 # 폴더 내의 모든 csv 파일을 가져옵니다.
-folder_path = 'sampleCsv/'  #주의: 레이블의 범주가 너무 많으면 정확도가 떨어집니다! 한 레이블 범주당 중복되는 데이터량이 많아야 좋을 거 같아요.
+folder_path = 'csvFromJSON2/'  #주의: 레이블의 범주가 너무 많으면 정확도가 떨어집니다! 한 레이블 범주당 중복되는 데이터량이 많아야 좋을 거 같아요.
 csv_files = glob.glob(folder_path + '*.csv')
 csv_files = sorted(csv_files)
 # 라벨링 데이터 정의
@@ -130,3 +130,5 @@ print(f"loss: {loss:.4f}, accuracy: {accuracy:.4f}")
 print(f"테스트한 데이터 수: {len(predictions)}")
 max_indices = np.argmax(predictions, axis=1)
 print(f"예측한 정답: {max_indices}")
+
+model.save('data.h5')
