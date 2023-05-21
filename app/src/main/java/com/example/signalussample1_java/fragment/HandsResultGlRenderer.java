@@ -106,7 +106,7 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
                     x[ind]= lm.getX();
                     y[ind]= lm.getY();
                     z[ind]= lm.getZ();
-                    Log.d("HandsResultGlRenderer", var14.append(x[ind]).append(", y : ").append(y[ind]).append(", z : ").append(z[ind]).toString());
+                    //Log.d("HandsResultGlRenderer", var14.append(x[ind]).append(", y : ").append(y[ind]).append(", z : ").append(z[ind]).toString());
 
                 }
 

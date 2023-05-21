@@ -6,34 +6,20 @@ import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.ge
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getZ;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.graphics.ImageFormat;
-import android.graphics.Matrix;
-import android.graphics.RectF;
-import android.graphics.SurfaceTexture;
 import android.hardware.camera2.*;
-import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.Image;
-import android.media.ImageReader;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -47,15 +33,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+
 
 import io.reactivex.disposables.CompositeDisposable;
 import kotlin.Metadata;
@@ -106,28 +87,13 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private int port=3000;
 
     CameraCaptureSession mCameraCaptureSession;
-    CameraDevice mCameraDevice;
-    CameraManager mCameraManager;
-
-    Size mVideoSize;
-    Size mPreviewSize;
-    CaptureRequest.Builder mCaptureRequestBuilder;
-
-    int mSensorOrientation;
-
-    Semaphore mSemaphore = new Semaphore(1);
-
     HandlerThread mBackgroundThread;
     Handler mBackgroundHandler;
-
-    MediaRecorder mMediaRecorder;
     static TextView server_result;
     private Hands hands;
     private CameraInput cameraInput;
     private SolutionGlSurfaceView glSurfaceView;
 
-
-    private boolean mIsRecordingVideo;
     public Handler handler;
     public static cameraFragment newInstance() {
         return new cameraFragment();
@@ -193,10 +159,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         ((ImageView)this._$_findCachedViewById(id.imageView12)).setOnClickListener((View.OnClickListener)this);
 
 
-
-        //connect();//서버 연결
-
-
+        connect();
     }
 
     public void onClick(@Nullable View v) {
@@ -284,9 +247,10 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             y = getY();
             z = getZ();
 
-
+            //connect();//서버 연결
+            receiveServerData();//서버로 보내고 받고 해보자.
             for(int i=0;i<21;i++) {
-                sendToServer(x[i]);
+                //sendToServer(x[i]);
                 Log.d("", "cameraFragment쪽에서 받아온 포인트[" + i + "] 값 : x " + String.valueOf(x[i]) + " y " + String.valueOf(y[i]) + " z " + String.valueOf(z[i]));
             }
 
@@ -295,7 +259,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         glSurfaceView.post(this::startCamera);
 
         // Add the GLSurfaceView to the FrameLayout defined in activity_main.xml
-
 
         binding.control.removeAllViewsInLayout();
         binding.control.addView(glSurfaceView);
@@ -375,14 +338,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             e.printStackTrace();
         }
     }
-
-    private void closePreviewSession() {
-        if (mCameraCaptureSession != null) {
-            mCameraCaptureSession.close();
-            mCameraCaptureSession = null;
-        }
-    }
-
     private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
     private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
     static {
@@ -401,8 +356,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     void connect(){//서버에 연결
 
-        mHandler = new Handler();
-        Thread connectThread = new Thread() {
+        //mHandler = new Handler();
+        Thread connectThread = new Thread(new Runnable() {
             public void run() {
                 // Server connection. Socket communication implementation
                 try {
@@ -412,48 +367,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                     Log.w("서버접속못함", "서버접속못함");
                     e1.printStackTrace();
                 }
-
-                try {
-                    dos = new DataOutputStream(socket.getOutputStream());
-                    dis = new DataInputStream(socket.getInputStream());
-                    dos.writeUTF("Signal US에서 서버로 연결요청");
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.w("Buffer", "버퍼 생성 잘못됨");
-                }
-
-                Log.w("Buffer", "버퍼 생성 잘됨");
-
-                    try {
-                        String line = "";
-                        int line2;
-                        while (true) {
-                            //line = (String) dis.readUTF();
-                            line2 = (int) dis.read();
-                            //Log.w("서버에서 받아온 값 ", "" + line);
-                            //Log.w("서버에서 받아온 값 ", "" + line2);
-
-                            if(line2 > 0) {
-                                Log.w("------서버에서 받아온 값 ", "" + line2);
-                                dos.writeUTF("하나 받았습니다. : " + line2);
-                                server_result.setText(line2);
-                                dos.flush();
-                            }
-                            if(line2 == 99) {
-                                Log.w("------서버에서 받아온 값 ", "" + line2);
-                                socket.close();
-
-                                break;
-                            }
-                        }
-                    } catch (Exception e) {
-
-                    }
-
-
             }
-        };
+        });
         connectThread.start();
         try {
             connectThread.join();
@@ -462,6 +377,57 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         }
         System.out.println("Connection established");
 
+    }
+    private void receiveServerData(){
+
+        if (socket != null && socket.isConnected()) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        dos = new DataOutputStream(socket.getOutputStream());
+                        dis = new DataInputStream(socket.getInputStream());
+                        dos.writeUTF("Signal US에서 서버로 연결요청!");
+                        dos.flush();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.w("Buffer", "버퍼 생성 잘못됨");
+                    }
+                    Log.w("Buffer", "버퍼 생성 잘됨");
+                    while (true) {
+
+                        try {
+                            String line = "";
+                            int line2;
+                            while (true) {
+                                //line = (String) dis.readUTF();
+                                line2 = (int) dis.read();
+                                //Log.w("서버에서 받아온 값 ", "" + line);
+                                //Log.w("서버에서 받아온 값 ", "" + line2);
+
+                                if (line2 > 0) {
+                                    Log.w("------서버에서 받아온 값 ", "" + line2);
+                                    dos.writeUTF(String.valueOf(x[1]));
+                                    dos.flush();
+                                    server_result.setText(line2);
+
+                                }
+                                if (line2 == 99) {
+                                    Log.w("------서버에서 받아온 값 ", "" + line2);
+                                    socket.close();
+
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+
+                        }
+                    }
+                }
+            });
+            thread.start();
+    }
     }
     private void sendToServer(byte[] bytes){
         Thread sendThread = new Thread() {

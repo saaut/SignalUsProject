@@ -27,8 +27,9 @@ class ServerSocket:
         print(u'Server socket [ TCP_IP: ' + self.TCP_IP + ', TCP_PORT: ' + str(self.TCP_PORT) + ' ] is connected with client')
 
     def receivelandmarks(self):#클라이언트로부터 지속적으로 데이터를 수신한다. 지속적으로 데이터를 보내는 것도 가능?       
-        try:
-            while():
+        try:         
+            while(True):
+                time.sleep(0.25)
                 data = self.conn.recv(1024)
                 print(data.decode("utf-8"), len(data))#받은 데이터 값을 출력한다.
                 
@@ -38,8 +39,6 @@ class ServerSocket:
                     self.conn.send(data2.to_bytes(4, byteorder='little'))
                     print("보냄")
 
-                if(data == 99):
-                    break
                       
         except Exception as e:
             print(e)
