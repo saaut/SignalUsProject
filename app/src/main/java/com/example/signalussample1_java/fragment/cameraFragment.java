@@ -194,7 +194,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
 
 
-        connect();//서버 연결
+        //connect();//서버 연결
 
 
     }
@@ -230,8 +230,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                         mCamId = CAM_REAR;
                         break;
                 }
-                closeCamera();
-                //openCamera(binding.preview.getWidth(), binding.preview.getHeight());
             }
         }
         var3 = id.imageView12;
@@ -297,9 +295,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         glSurfaceView.post(this::startCamera);
 
         // Add the GLSurfaceView to the FrameLayout defined in activity_main.xml
-
-
-
 
 
         binding.control.removeAllViewsInLayout();
@@ -370,244 +365,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         assert getActivity() != null;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        startBackgroundThread();
-        if (binding.preview.isAvailable()) {
-            //openCamera(binding.preview.getWidth(), binding.preview.getHeight());
-        } else {
-            binding.preview.setSurfaceTextureListener(mSurfaceTextureListener);
-        }
-    }
-
-
-    private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            //openCamera(binding.preview.getWidth(), binding.preview.getHeight());
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-            if(!mIsRecordingVideo) configureTransform(width, height);
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            return true;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
-        }
-    };
-
-    private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
-        @Override
-        public void onOpened(@NonNull CameraDevice camera) {
-            mCameraDevice = camera;
-            startPreview();
-            mSemaphore.release();
-            if (null != binding.preview) {
-                configureTransform(binding.preview.getWidth(), binding.preview.getHeight());
-            }
-
-        }
-
-        @Override
-        public void onDisconnected(@NonNull CameraDevice camera) {
-            mSemaphore.release();
-            camera.close();
-            mCameraDevice = null;
-        }
-
-        @Override
-        public void onError(@NonNull CameraDevice camera, int error) {
-            mSemaphore.release();
-            camera.close();
-            mCameraDevice = null;
-            Activity activity = getActivity();
-            assert activity != null;
-            activity.finish();
-        }
-    };
-
-
-    //카메라 기능 호출
-    private void openCamera(int width, int height) {
-        Activity activity = getActivity();
-        assert activity != null;
-        mCameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
-        try {
-            if (!mSemaphore.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
-                throw new RuntimeException("Time out waiting to lock camera opening.");
-            }
-            CameraCharacteristics cc = mCameraManager.getCameraCharacteristics(mCamId);
-            StreamConfigurationMap scm = cc.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            mSensorOrientation = cc.get(CameraCharacteristics.SENSOR_ORIENTATION);
-            if (scm == null) {
-                throw new RuntimeException("Cannot get available preview/video sizes");
-            }
-
-            mVideoSize = chooseVideoSize(scm.getOutputSizes(MediaRecorder.class));
-            mPreviewSize = chooseOptimalSize(scm.getOutputSizes(SurfaceTexture.class), width, height, mVideoSize);
-
-            int orientation = getResources().getConfiguration().orientation;
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                binding.preview.setAspectRatio(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-            } else {
-                binding.preview.setAspectRatio(mPreviewSize.getHeight(), mPreviewSize.getWidth());
-            }
-
-            configureTransform(width, height);
-            mMediaRecorder = new MediaRecorder();
-            mCameraManager.openCamera(mCamId, mStateCallback, mBackgroundHandler);
-        } catch (CameraAccessException | SecurityException | NullPointerException | InterruptedException e) {
-            e.printStackTrace();
-            activity.finish();
-        }
-
-
-    }
-
-    private static Size chooseVideoSize(Size[] choices) {
-        for (Size size : choices) {
-            // 해상도에 맞게 설정
-            if(size.getWidth() == size.getHeight() * 4 / 3 && size.getWidth() <= 1080){
-                return size;
-            }
-        }
-        return choices[choices.length - 1];
-    }
-
-    private static Size chooseOptimalSize(Size[] choices, int width, int height, Size aspectRatio) {
-        List<Size> bigEnough = new ArrayList<>();
-        int w = aspectRatio.getWidth();
-        int h = aspectRatio.getHeight();
-        for (Size ops : choices) {
-            if(ops.getHeight() == ops.getWidth() * h / w && ops.getWidth() >= width && ops.getHeight() >= height) {
-                bigEnough.add(ops);
-            }
-        }
-
-        if (bigEnough.size() > 0) {
-            return Collections.min(bigEnough, new CompareSizesByArea());
-        } else {
-            return choices[0];
-        }
-    }
-
-
-    // 카메라 닫기
-    private void closeCamera() {
-        try {
-            mSemaphore.acquire();
-            closePreviewSession();
-            if (null != mCameraDevice) {
-                mCameraDevice.close();
-                mCameraDevice = null;
-            }
-            if (null != mMediaRecorder) {
-                mMediaRecorder.release();
-                mMediaRecorder = null;
-            }
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        } finally {
-            mSemaphore.release();
-        }
-    }
-
-    //미리보기 기능
-    private void startPreview() {
-        if(null == mCameraDevice || !binding.preview.isAvailable() || null == mPreviewSize) {
-            Toast.makeText(getContext(), "CameraDeviceIsNotAvailable", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            closePreviewSession();
-            SurfaceTexture texture = binding.preview.getSurfaceTexture();
-            assert texture != null;
-            texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-            mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-
-            Surface previewSurface = new Surface(texture);
-            mCaptureRequestBuilder.addTarget(previewSurface);
-            mCameraDevice.createCaptureSession(Collections.singletonList(previewSurface), new CameraCaptureSession.StateCallback() {
-                @Override
-                public void onConfigured(@NonNull CameraCaptureSession session) {
-                    mCameraCaptureSession = session;
-                    updatePreview();
-                }
-
-                @Override
-                public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-                    Activity activity = getActivity();
-                    assert activity != null;
-                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
-                }
-            }, mBackgroundHandler);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void updatePreview() {
-        if (null == mCameraDevice) {
-            return;
-        }
-        try {
-            setUpCaptureRequestBuilder(mCaptureRequestBuilder);
-            HandlerThread thread = new HandlerThread("CameraPreview");
-            thread.start();
-            mCameraCaptureSession.setRepeatingRequest(mCaptureRequestBuilder.build(), null, mBackgroundHandler);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setUpCaptureRequestBuilder(CaptureRequest.Builder builder) {
-        builder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-    }
-
-
-    private void configureTransform(int viewWidth, int viewHeight) {
-        Activity activity = getActivity();
-        if (null == binding.preview || null == mPreviewSize || null == activity) {
-            return;
-        }
-        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        Matrix matrix = new Matrix();
-        RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
-        RectF bufferRect = new RectF(0, 0, mPreviewSize.getWidth(), mPreviewSize.getHeight());
-
-        float centerX = viewRect.centerX();
-        float centerY = viewRect.centerY();
-
-        if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
-            bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
-            matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
-            float scale = Math.max(
-                    (float) viewHeight / mPreviewSize.getHeight(),
-                    (float) viewWidth / mPreviewSize.getWidth()
-            );
-            matrix.postScale(scale, scale, centerX, centerY);
-            matrix.postRotate(90 * (rotation - 2), centerX, centerY);
-        }
-        activity.runOnUiThread(() -> binding.preview.setTransform(matrix));
-    }
-
-    private void startBackgroundThread() {
-        mBackgroundThread = new HandlerThread("CameraBackground");
-        mBackgroundThread.start();
-        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-    }
-
     private void stopBackgroundThread() {
         mBackgroundThread.quitSafely();
         try {
@@ -626,8 +383,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         }
     }
 
-    private static final int SENSOR_ORIENTATION_DEFAULT_DEGREES = 90;
-    private static final int SENSOR_ORIENTATION_INVERSE_DEGREES = 270;
     private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
     private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
     static {
@@ -777,112 +532,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         return new String(encoded, StandardCharsets.UTF_8);//문자열로 바꾸기 위해 UTF8로 디코딩을 해준다.
     }
 
-
-
-
-
-
-    //캡처와 전송시작
-    private void startCaptureImg() {
-        if (null == mCameraDevice || !binding.preview.isAvailable() || null == mPreviewSize) {//카메라가 사용할 수 있는 상태인지 확인
-            Log.e(TAG, "mCameraDevice is null, return");
-            return;
-        }
-        Toast.makeText(getContext(), "이미지가져오기 실행", Toast.LENGTH_SHORT).show();
-
-        assert getActivity() != null;//activity와 fragment가 잘 attach되어있고, 아직 destroy되지 않았다는 뜻
-        SurfaceTexture texture = binding.preview.getSurfaceTexture();//Preview texture과 관련된 surfacetexture를 찾는다.
-
-        assert texture !=null;//Preview texture를 사용할 수 있는 지 확인
-        try {
-            int width = 640;
-            int height = 480;
-
-            assert texture != null;
-            ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);//JPEG 형식으로 캡처된 이미지를 수신할 ImageReader 인스턴스 생성
-            List<Surface> outputSurfaces = new ArrayList<Surface>(2);
-            outputSurfaces.add(reader.getSurface());
-            outputSurfaces.add(new Surface(texture));
-
-
-            final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(reader.getSurface());
-            captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);//카메라실행을 위한 세팅. 카메라 캡처 요청에 대한 제어 모드를 자동으로 설정한다.
-
-
-            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {//이미지를 사용할 수 있을 때 트리거되는 OnImageAvailableListener를 만든다.
-                @Override
-                public void onImageAvailable(ImageReader reader) {//readerListender 내부에서 캡처된 이미지를 획득
-                    Image image = null;
-                    try {
-                        image = reader.acquireLatestImage();
-                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        byte[] bytes = new byte[buffer.remaining()];
-                        buffer.get(bytes);
-                        Toast.makeText(getContext(), "바이트 데이터 얻기 성공", Toast.LENGTH_SHORT).show();
-
-                        sendImageToServer(bytes); // Call your method to send the byte data to the server
-                    } finally {
-                        if (image != null) {
-                            image.close();
-                        }
-                    }
-                }
-            };
-
-            HandlerThread thread = new HandlerThread("CameraPicture");
-            thread.start();
-            final Handler backgroudHandler = new Handler(thread.getLooper());
-            reader.setOnImageAvailableListener(readerListener, backgroudHandler);
-
-            final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
-                @Override
-                public void onCaptureCompleted(CameraCaptureSession session,//캡처 완료 시 서버로 전송
-                                               CaptureRequest request, TotalCaptureResult result) {
-                    super.onCaptureCompleted(session, request, result);
-                    startPreview();
-                }
-
-            };
-
-            mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
-                @Override
-                public void onConfigured(CameraCaptureSession session) {
-                    try {
-                        session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-
-                    }
-                }
-
-                @Override
-                public void onConfigureFailed(CameraCaptureSession session) {
-
-                }
-            }, mBackgroundHandler);
-
-
-
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
-    }
-    private void sendImageToServer(byte[] imageData) {
-        // Implement your networking code here to send the byte data to the server
-        // This can involve using libraries such as HttpURLConnection, OkHttp, Retrofit, etc.
-        // Construct an HTTP request, set headers and parameters, and attach the byte data
-        // to the request body before sending it to the server.
-        sendToServer(imageData);
-        Toast.makeText(getContext(), "서버로 이미지 전송 시도", Toast.LENGTH_SHORT).show();
-    }
-
-    static class CompareSizesByArea implements Comparator<Size> {
-        @Override
-        public int compare(Size lhs, Size rhs) {
-            return Long.signum((long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight());
-        }
-    }
 
     CompositeDisposable mCompositeDisposable;
 
