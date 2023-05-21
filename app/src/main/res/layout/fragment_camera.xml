@@ -20,15 +20,15 @@
 
         <FrameLayout
             android:id="@+id/control"
-            android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:background="@color/control_background"
+            android:layout_width="360dp"
+            android:layout_height="640dp"
+            android:background="@color/ivory"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.038"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.51"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.333">
+            app:layout_constraintVertical_bias="0.934">
 
 
         </FrameLayout>
@@ -122,7 +122,7 @@
             app:layout_constraintVertical_bias="0.85" />
 
         <TextView
-            android:id="@+id/Result"
+            android:id="@+id/server_result"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-black"

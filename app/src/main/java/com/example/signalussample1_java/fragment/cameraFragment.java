@@ -1,5 +1,10 @@
 package com.example.signalussample1_java.fragment;
 
+
+import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getX;
+import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getY;
+import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getZ;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -37,6 +42,7 @@ import androidx.navigation.Navigation;
 import com.example.signalussample1_java.R;
 import com.example.signalussample1_java.R.id;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -84,6 +90,9 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private static final String CAM_WHAT = "2";
     private static final String CAM_FRONT = "1";
     private static final String CAM_REAR = "0";
+    float[] x ;
+    float[] y ;
+    float[] z ;
 
     private String mCamId;
     private Handler mHandler;//TCP connection을 thread상에서 진행할 것이기 때문에 Handler를 선언해준다.
@@ -93,7 +102,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     private DataOutputStream dos;
     private DataInputStream dis;
-    private String ip ="172.16.0.36";
+    private String ip ="172.30.1.51";
     private int port=3000;
 
     CameraCaptureSession mCameraCaptureSession;
@@ -112,7 +121,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     Handler mBackgroundHandler;
 
     MediaRecorder mMediaRecorder;
-
+    static TextView server_result;
     private Hands hands;
     private CameraInput cameraInput;
     private SolutionGlSurfaceView glSurfaceView;
@@ -158,7 +167,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             var4 = arguments.getString("body_part", "");
         }
         body_part = var4;
-        //connect();//서버 연결
 
         return binding.getRoot();
 
@@ -171,8 +179,11 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
         this.navController = Navigation.findNavController(view);
         TextView var10000 = (TextView)this._$_findCachedViewById(id.translated);
+        server_result = (TextView)this._$_findCachedViewById(id.server_result);
+
 
         Intrinsics.checkNotNullExpressionValue(var10000, "translated");
+
 
         var10000.setText((CharSequence)this.body_part);
 
@@ -180,6 +191,10 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         ((ImageView)this._$_findCachedViewById(id.stt_btn)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.switchImgBtn)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.imageView12)).setOnClickListener((View.OnClickListener)this);
+
+
+
+        connect();//서버 연결
 
 
     }
@@ -240,23 +255,25 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     }
 
     // mediapipe hands 라이브러리 사용하여 스트리밍 모드의 파이프라인을 설정한다.
-    private void setupStreamingModePipeline() {
+    private void setupStreamingModePipeline() {//카메라 입력 프레임을 지속적으로 처리하여, 실시간으로 손을 감지하는 스트리밍 모드용 파이프라인을 설정한다.
         // Initialize the Hands pipeline
-        hands = new Hands(
+        hands = new Hands(//손 감지
                 getContext(),
                 HandsOptions.builder()
-                        .setStaticImageMode(false)
-                        .setMaxNumHands(1)
-                        .setRunOnGpu(true)
+                        .setStaticImageMode(false)//정적 이미지 모드 비활성화
+                        .setMaxNumHands(2)//탐지할 최대 손 수 설정
+                        .setRunOnGpu(true)//GPU가속 활성화
                         .build()
         );
         hands.setErrorListener((message, e) -> Log.e("TAG", "MediaPipe Hands error: " + message));
 
         // Create the camera input and set the new frame listener to send frames to the Hands pipeline
-        cameraInput = new CameraInput(getActivity());
-        cameraInput.setNewFrameListener(hands::send);
+        cameraInput = new CameraInput(getActivity());//카메라 입력 프레임에 액세스 할 수 있다.
+        cameraInput.setNewFrameListener(hands::send);//프레임수신기. 카메라 프레임을 Hands개체로 전송하도록.
 
         // Create the GLSurfaceView for rendering the results
+        //결과 수신기는 손 감지 프로세스의 출력을 수신하도록 설정됩니다. 결과 데이터는 렌더링을 위해 GL 표면 보기로 전달됩니다.
+        //requestRender() 메서드는 GL 표면 뷰에서 렌더링을 트리거하기 위해 호출됩니다.
         glSurfaceView = new SolutionGlSurfaceView(getContext(), hands.getGlContext(), hands.getGlMajorVersion());
         glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
         glSurfaceView.setRenderInputImage(true);
@@ -265,16 +282,32 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         hands.setResultListener(result -> {
             glSurfaceView.setRenderData(result);
             glSurfaceView.requestRender();
+            x = getX();
+            y = getY();
+            z = getZ();
+
+
+            for(int i=0;i<21;i++) {
+                sendToServer(x[i]);
+                Log.d("", "cameraFragment쪽에서 받아온 포인트[" + i + "] 값 : x " + String.valueOf(x[i]) + " y " + String.valueOf(y[i]) + " z " + String.valueOf(z[i]));
+            }
+
         });
 
         glSurfaceView.post(this::startCamera);
 
         // Add the GLSurfaceView to the FrameLayout defined in activity_main.xml
+
+
+
+
+
         binding.control.removeAllViewsInLayout();
         binding.control.addView(glSurfaceView);
         glSurfaceView.setVisibility(View.VISIBLE);
         binding.control.requestLayout();
     }
+
     private void startCamera() {
         cameraInput.start(
                 getActivity(),
@@ -612,26 +645,58 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     }
 
     void connect(){//서버에 연결
+
+        mHandler = new Handler();
         Thread connectThread = new Thread() {
             public void run() {
                 // Server connection. Socket communication implementation
                 try {
                     socket = new Socket(ip, port);
-                    Log.w("Server connected", "Server connected");
+                    Log.w("서버 접속됨", "서버 접속됨");
                 } catch (IOException e1) {
-                    Log.w("Could not connect to server", "Could not connect to server");
+                    Log.w("서버접속못함", "서버접속못함");
                     e1.printStackTrace();
                 }
 
                 try {
                     dos = new DataOutputStream(socket.getOutputStream());
                     dis = new DataInputStream(socket.getInputStream());
+                    dos.writeUTF("Signal US에서 서버로 연결요청");
+
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.w("Buffer", "Error creating buffer");
+                    Log.w("Buffer", "버퍼 생성 잘못됨");
                 }
 
-                Log.w("Buffer", "Buffer created successfully");
+                Log.w("Buffer", "버퍼 생성 잘됨");
+
+                    try {
+                        String line = "";
+                        int line2;
+                        while (true) {
+                            //line = (String) dis.readUTF();
+                            line2 = (int) dis.read();
+                            //Log.w("서버에서 받아온 값 ", "" + line);
+                            //Log.w("서버에서 받아온 값 ", "" + line2);
+
+                            if(line2 > 0) {
+                                Log.w("------서버에서 받아온 값 ", "" + line2);
+                                dos.writeUTF("하나 받았습니다. : " + line2);
+                                server_result.setText(line2);
+                                dos.flush();
+                            }
+                            if(line2 == 99) {
+                                Log.w("------서버에서 받아온 값 ", "" + line2);
+                                socket.close();
+
+                                break;
+                            }
+                        }
+                    } catch (Exception e) {
+
+                    }
+
+
             }
         };
         connectThread.start();
@@ -651,6 +716,41 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                     dos.flush();
 
                     dos.write(bytes); // Send the byte array
+                    dos.flush();
+
+                    String result = readUTF8(dis); // Read the response from the server
+
+                    socket.close();
+                } catch (Exception e) {
+                    Log.w("Error", "An error occurred while sending data");
+                    e.printStackTrace();
+                }
+            }
+        };
+        sendThread.start();
+        try {
+            sendThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Data sent successfully");
+    }
+    private void sendToServer(float data){
+        Thread sendThread = new Thread()
+        {
+            public void run() {
+                try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream dosTemp = new DataOutputStream(baos);
+                    dosTemp.writeFloat(data);
+                    dosTemp.flush();
+
+                    byte[] byteData = baos.toByteArray();
+
+                    dos.writeUTF(Integer.toString(byteData.length)); // Send the length of the byte array as a string
+                    dos.flush();
+
+                    dos.write(byteData); // Send the byte array
                     dos.flush();
 
                     String result = readUTF8(dis); // Read the response from the server
