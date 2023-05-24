@@ -83,8 +83,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     private DataOutputStream dos;
     private DataInputStream dis;
-    private String ip ="172.30.1.51";
-    private int port=3000;
+    private String ip ="172.30.1.65";
+    private int port=22;
 
     CameraCaptureSession mCameraCaptureSession;
     HandlerThread mBackgroundThread;
@@ -251,7 +251,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             receiveServerData();//서버로 보내고 받고 해보자.
             for(int i=0;i<21;i++) {
                 //sendToServer(x[i]);
-                Log.d("", "cameraFragment쪽에서 받아온 포인트[" + i + "] 값 : x " + String.valueOf(x[i]) + " y " + String.valueOf(y[i]) + " z " + String.valueOf(z[i]));
+                //Log.d("", "cameraFragment쪽에서 받아온 포인트[" + i + "] 값 : x " + String.valueOf(x[i]) + " y " + String.valueOf(y[i]) + " z " + String.valueOf(z[i]));
             }
 
         });
@@ -365,6 +365,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                     Log.w("서버 접속됨", "서버 접속됨");
                 } catch (IOException e1) {
                     Log.w("서버접속못함", "서버접속못함");
+                    server_result.setText("서버 접속에 실패하였습니다. 다시 시도해주세요.");
                     e1.printStackTrace();
                 }
             }
@@ -387,43 +388,52 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                     try {
                         dos = new DataOutputStream(socket.getOutputStream());
                         dis = new DataInputStream(socket.getInputStream());
-                        dos.writeUTF("Signal US에서 서버로 연결요청!");
+                        dos.writeUTF("시그널 어스에서 연결 요청");
                         dos.flush();
+                        Log.w("Buffer", "버퍼 생성 잘됨");
+                        while (true) {
+
+                            try {
+                                String line = "";
+                                int line2;
+                                while (true) {
+                                    //line = (String) dis.readUTF();
+                                    line2 = (int) dis.read();
+                                    //Log.w("서버에서 받아온 값 ", "" + line);
+                                    //Log.w("서버에서 받아온 값 ", "" + line2);
+
+                                    if (line2 > 0) {
+
+                                        Log.w("------서버에서 받아온 값 ", "" + line2);
+                                        for (int i=0;i<21;i++){
+                                            dos.writeUTF("&"+String.valueOf(x[i]));
+                                            dos.flush();
+                                            dos.writeUTF("&"+String.valueOf(y[i]));
+                                            dos.flush();
+                                            dos.writeUTF("&"+String.valueOf(z[i]));
+                                            dos.flush();
+
+                                        }
+                                        server_result.setText(line2);
+
+                                    }
+                                    if (line2 == 99) {
+                                        Log.w("------서버에서 받아온 값 ", "" + line2);
+                                        socket.close();
+
+                                        break;
+                                    }
+                                }
+                            } catch (Exception e) {
+
+                            }
+                        }
 
                     } catch (IOException e) {
                         e.printStackTrace();
                         Log.w("Buffer", "버퍼 생성 잘못됨");
                     }
-                    Log.w("Buffer", "버퍼 생성 잘됨");
-                    while (true) {
 
-                        try {
-                            String line = "";
-                            int line2;
-                            while (true) {
-                                //line = (String) dis.readUTF();
-                                line2 = (int) dis.read();
-                                //Log.w("서버에서 받아온 값 ", "" + line);
-                                //Log.w("서버에서 받아온 값 ", "" + line2);
-
-                                if (line2 > 0) {
-                                    Log.w("------서버에서 받아온 값 ", "" + line2);
-                                    dos.writeUTF(String.valueOf(x[1]));
-                                    dos.flush();
-                                    server_result.setText(line2);
-
-                                }
-                                if (line2 == 99) {
-                                    Log.w("------서버에서 받아온 값 ", "" + line2);
-                                    socket.close();
-
-                                    break;
-                                }
-                            }
-                        } catch (Exception e) {
-
-                        }
-                    }
                 }
             });
             thread.start();
@@ -506,6 +516,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         stopBackgroundThread();
         super.onDestroyView();
         this._$_clearFindViewByIdCache();
+        cameraInput.close();
     }
 }
 

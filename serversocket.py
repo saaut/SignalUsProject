@@ -29,15 +29,17 @@ class ServerSocket:
     def receivelandmarks(self):#클라이언트로부터 지속적으로 데이터를 수신한다. 지속적으로 데이터를 보내는 것도 가능?       
         try:         
             while(True):
-                time.sleep(0.25)
-                data = self.conn.recv(1024)
-                print(data.decode("utf-8"), len(data))#받은 데이터 값을 출력한다.
+                time.sleep(0.069)
+                data = self.conn.recv(4096)
+                strdata=data.decode("utf-8")
+            
+                print(strdata)
                 
                 if(data):#받은 데이터 값이 정상이면
-                    data2 = 1 #그에 대응하는 값을 보낸다.
+                    data2 =1 #bytes(strdata[2:5],encoding="utf-8")#그에 대응하는 값을 보낸다.->모델링 테스트 결과가 들어가야함. 문자열은 byte 코드로 바꿔서!
                     # 값하나 보냄(사용자가 입력한 숫자)
                     self.conn.send(data2.to_bytes(4, byteorder='little'))
-                    print("보냄")
+                    print("보냄")#받아온 데이터 값 출력보다 보내는 게 빠름
 
                       
         except Exception as e:
@@ -51,7 +53,7 @@ class ServerSocket:
 
 
 def main():
-    server = ServerSocket('172.30.1.51', 3000)
+    server = ServerSocket('172.30.1.65', 22)
 
 if __name__ == "__main__":
     main()

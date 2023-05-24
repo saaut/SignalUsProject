@@ -20,16 +20,16 @@
 
         <FrameLayout
             android:id="@+id/control"
-            android:layout_width="360dp"
-            android:layout_height="640dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:background="@color/ivory"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="16:20"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.51"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.934">
-
+            app:layout_constraintVertical_bias="0.392">
 
         </FrameLayout>
 
