@@ -1,13 +1,10 @@
 import socket
-import numpy
-import base64
-import time
 import threading
-from datetime import datetime
-import re
+import csv
 
 class ServerSocket:
-    
+    filename = 'point.csv'
+
 
     def __init__(self, ip, port):#생성자의 TCP IP 주소와 포트 초기화
         self.TCP_IP = ip
@@ -37,13 +34,13 @@ class ServerSocket:
             if char == backslash and not backslash_found:
                 backslash_found = True
                 continue
-            elif char!='&' and backslash_found:
+            elif char!=',' and backslash_found:
                 continue
-            elif char == '&' and backslash_found:
+            elif char == ',' and backslash_found:
                 cleaned_data += char                
                 backslash_found = False
                 continue
-            elif char !='&'and not backslash_found:
+            elif char !=','and not backslash_found:
                 cleaned_data += char
             elif char =='끝':
                 socket.close()
@@ -71,23 +68,36 @@ class ServerSocket:
                     break
                 strdata=data.decode("utf-8")
                 cleanedstrdata=self.changeData(strdata)
-                
+                               
                 print(cleanedstrdata)
-                SplitedData=cleanedstrdata.split('&')#출력과 실제 데이터가 다름
+                SplitedData=cleanedstrdata.split(',')#출력과 실제 데이터가 다름
+                
+                
                 i=0
                 count=(int)(len(SplitedData)/4)
-                while(count!= 1 and i<count):
-                    x.append(SplitedData[1+i])                    
-                    y.append(SplitedData[2+i])
-                    leftx.append(SplitedData[3+i])
-                    lefty.append(SplitedData[4+i])
+                with open('point.csv', 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    
+                    if file.tell() == 0:
+                        # Write column headers
+                        writer.writerow(['rightX0', 'rightY0', 'rightX1', 'rightY1', 'rightX2', 'rightY2', 'rightX3', 'rightY3', 'rightX4', 'rightY4', 'rightX5', 'rightY5', 'rightX6 ', 'rightY6', 'rightX7', 'rightY7', 'rightX8', 'rightY8', 'rightX9', 'rightY9', 'rightX10', 'rightY10', 'rightX11', 'rightY11', 'rightX12', 'rightY12', 'rightX13', 'rightY13', 'rightX14', 'rightY14', 'rightX15', 'rightY15', 'rightX16', 'rightY16', 'rightX17', 'rightY17', 'rightX18', 'rightY18 ', 'rightX19', 'rightY19', 'rightX20', 'rightY20','leftX0', 'leftY0', 'leftX1', 'leftY1', 'leftX2', 'leftY2', 'leftX3', 'leftY3', 'leftX4', 'leftY4', 'leftX5', 'leftY5', 'leftX6 ', 'leftY6', 'leftX7', 'leftY7', 'leftX8', 'leftY8', 'leftX9', 'leftY9', 'leftX10', 'leftY10', 'leftX11', 'leftY11', 'leftX12', 'leftY12', 'leftX13', 'leftY13', 'leftX14', 'leftY14', 'leftX15', 'leftY15', 'leftX16', 'leftY16', 'leftX17', 'leftY17', 'leftX18', 'leftY18 ', 'leftX19', 'leftY19', 'leftX20', 'leftY20'])
+                    if(count!= 1 and i<count):
+                        writer.writerow(SplitedData[1:])
 
-                    print("rightx"+str(i+1)+" : "+x[i]+"\n")
-                    print("righty"+str(i+1)+" : "+y[i]+"\n")
-                    print("leftx"+str(i+1)+" : "+leftx[i]+"\n")
-                    print("lefty"+str(i+1)+" : "+lefty[i]+"\n")
-                    i+=1
-                
+                        while(count!= 1 and i<count):
+                            x.append(SplitedData[1+i])                    
+                            y.append(SplitedData[2+i])               
+                            #print("rightx"+str(i)+" : "+x[i]+"\n")
+                            #print("righty"+str(i)+" : "+y[i]+"\n")
+                            i+=1
+                        while(count!= 1 and i<count*2):
+                            leftx.append(SplitedData[3+i])
+                            lefty.append(SplitedData[4+i])
+                            #print("leftx"+str(i-count)+" : "+leftx[i-count]+"\n")
+                            #print("lefty"+str(i-count)+" : "+lefty[i-count]+"\n")
+                            i+=1
+                            
+                print("CSV file has been written successfully.")
                 if(data):#받은 데이터 값이 정상이면
                     data2 =1 #bytes(strdata[2:5],encoding="utf-8")#그에 대응하는 값을 보낸다.->모델링 테스트 결과가 들어가야함. 문자열은 byte 코드로 바꿔서!
                     # 값하나 보냄(사용자가 입력한 숫자)

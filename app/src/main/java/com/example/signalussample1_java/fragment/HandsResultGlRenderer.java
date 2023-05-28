@@ -123,8 +123,8 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
 
                     }
                     else{
-                    rightX[ind]= lm.getX();
-                    rightY[ind]= lm.getY();
+                        rightX[ind]= lm.getX();
+                        rightY[ind]= lm.getY();
                         Log.d("HandsResultGlRenderer", var14.append(rightX[ind]).append(", rightY : ").append(rightY[ind]).toString());
 
                     }

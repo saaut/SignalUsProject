@@ -238,7 +238,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             glSurfaceView.setRenderData(result);
             glSurfaceView.requestRender();
             cameraframe++;
-            if(cameraframe%20==0) {
+            if(cameraframe%25==0) {
                 x = getX();
                 y = getY();
                 lefty=getleftY();
@@ -370,16 +370,17 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                     try {
                             dos = new DataOutputStream(socket.getOutputStream());
                             dis = new DataInputStream(socket.getInputStream());
-                            dos.writeUTF("연결중");
-                            dos.flush();
+                            
                             for (int i = 0; i < 21; i++) {
-                                dos.writeUTF("&" + String.valueOf(x[i]));
+                                dos.writeUTF("," + String.valueOf(x[i]));
                                 dos.flush();
-                                dos.writeUTF("&" + String.valueOf(y[i]));
+                                dos.writeUTF("," + String.valueOf(y[i]));
                                 dos.flush();
-                                dos.writeUTF("&" + String.valueOf(leftx[i]));
+                            }
+                            for (int i = 0; i < 21; i++){
+                                dos.writeUTF("," + String.valueOf(leftx[i]));
                                 dos.flush();
-                                dos.writeUTF("&" + String.valueOf(lefty[i]));
+                                dos.writeUTF("," + String.valueOf(lefty[i]));
                                 dos.flush();
                             }
                             Log.w("Buffer", "버퍼 생성 잘됨");
