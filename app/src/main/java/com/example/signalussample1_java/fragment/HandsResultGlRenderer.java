@@ -14,6 +14,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -31,13 +32,24 @@ import org.jetbrains.annotations.Nullable;
 )
 public final class HandsResultGlRenderer implements ResultGlRenderer {
     private int program;
-    private int positionHandle;
-    private int projectionMatrixHandle;
+    private int positionHandle;//위치 핸들
+    private int projectionMatrixHandle;//투영 매트릭스 핸들
+    private int colorHandle;//색상 핸들
 
-    static float[] x=new float[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    static float[] y=new float[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};;
-    static float[] z=new float[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};;
-    private int colorHandle;
+
+    //랜드마크의 좌표를 저장
+    static float[] rightX = new float[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    static float[] rightY = new float[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    static float[] rightZ = new float[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    static float[] leftX = new float[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    static float[] leftY = new float[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    static float[] leftZ = new float[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+
+    //색상, 연결 두께, 원 반지름 상수들
     private static final String TAG = "HandsResultGlRenderer";
     private static final float[] LEFT_HAND_CONNECTION_COLOR = new float[]{0.2F, 1.0F, 0.2F, 1.0F};
     private static final float[] RIGHT_HAND_CONNECTION_COLOR = new float[]{1.0F, 0.2F, 0.2F, 1.0F};
@@ -52,23 +64,23 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
     private static final String VERTEX_SHADER = "uniform mat4 uProjectionMatrix;\nattribute vec4 vPosition;\nvoid main() {\n  gl_Position = uProjectionMatrix * vPosition;\n}";
     private static final String FRAGMENT_SHADER = "precision mediump float;\nuniform vec4 uColor;\nvoid main() {\n  gl_FragColor = uColor;\n}";
     @NotNull
-    public static final Companion Companion = new Companion((DefaultConstructorMarker)null);
+    public static final Companion Companion = new Companion((DefaultConstructorMarker) null);//Companion 지원 개체
 
-    private final int loadShader(int type, String shaderCode) {
+    private final int loadShader(int type, String shaderCode) {//셰이더 코드를 컴파일하기 위한 메서드
         int shader = GLES20.glCreateShader(type);
         GLES20.glShaderSource(shader, shaderCode);
         GLES20.glCompileShader(shader);
         return shader;
     }
 
-    public void setupRendering() {
+    public void setupRendering() {//OpenGL 프로그램 초기화, 셰이더 부착, 프로그램 연결------------------------------->왼손으로 한 번, 오른손으로 한 번 실행해보자..
         this.program = GLES20.glCreateProgram();
         int vertexShader = this.loadShader(35633, "uniform mat4 uProjectionMatrix;\nattribute vec4 vPosition;\nvoid main() {\n  gl_Position = uProjectionMatrix * vPosition;\n}");
         int fragmentShader = this.loadShader(35632, "precision mediump float;\nuniform vec4 uColor;\nvoid main() {\n  gl_FragColor = uColor;\n}");
         GLES20.glAttachShader(this.program, vertexShader);
         GLES20.glAttachShader(this.program, fragmentShader);
         GLES20.glLinkProgram(this.program);
-        this.positionHandle = GLES20.glGetAttribLocation(this.program, "vPosition");
+        this.positionHandle = GLES20.glGetAttribLocation(this.program, "vPosition");//핸들에 균일한 위치 부여
         this.projectionMatrixHandle = GLES20.glGetUniformLocation(this.program, "uProjectionMatrix");
         this.colorHandle = GLES20.glGetUniformLocation(this.program, "uColor");
     }
@@ -103,10 +115,19 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
                     LandmarkProto.NormalizedLandmark lm = (LandmarkProto.NormalizedLandmark)((LandmarkProto.NormalizedLandmarkList)var10000).getLandmarkList().get(ind);
                     StringBuilder var14 = (new StringBuilder()).append("LandMark[").append(ind).append("] | x : ");
                     Intrinsics.checkNotNullExpressionValue(lm, "lm");
-                    x[ind]= lm.getX();
-                    y[ind]= lm.getY();
-                    z[ind]= lm.getZ();
-                    Log.d("HandsResultGlRenderer", var14.append(x[ind]).append(", y : ").append(y[ind]).append(", z : ").append(z[ind]).toString());
+
+                    if(isLeftHand){
+                        leftX[ind]=lm.getX();
+                        leftY[ind]= lm.getY();
+                        Log.d("HandsResultGlRenderer", var14.append(leftX[ind]).append(", leftY : ").append(leftY[ind]).toString());
+
+                    }
+                    else{
+                    rightX[ind]= lm.getX();
+                    rightY[ind]= lm.getY();
+                        Log.d("HandsResultGlRenderer", var14.append(rightX[ind]).append(", rightY : ").append(rightY[ind]).toString());
+
+                    }
 
                 }
 
@@ -126,16 +147,25 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
 
         }
     }
+
     static float[] getX(){
-        return x;
+        return rightX;
     }
     static float[] getY(){
-        return y;
+        return rightY;
     }
     static float[] getZ(){
-        return z;
+        return rightZ;
     }
-
+    static float[] getleftX(){
+        return leftX;
+    }
+    static float[] getleftY(){
+        return leftY;
+    }
+    static float[] getleftZ(){
+        return leftZ;
+    }
     // $FF: synthetic method
     // $FF: bridge method
     public void renderResult(ImageSolutionResult var1, float[] var2) {
@@ -224,5 +254,4 @@ public final class HandsResultGlRenderer implements ResultGlRenderer {
             this();
         }
     }
-
 }

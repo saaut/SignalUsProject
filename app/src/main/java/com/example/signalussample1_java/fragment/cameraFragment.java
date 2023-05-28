@@ -3,13 +3,13 @@ package com.example.signalussample1_java.fragment;
 
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getX;
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getY;
+import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getleftY;
+import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getleftX;
+
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getZ;
 
 import android.Manifest;
-import android.hardware.camera2.*;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -73,28 +73,24 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private static final String CAM_REAR = "0";
     float[] x ;
     float[] y ;
-    float[] z ;
 
+    float[] leftx;
+    float[] lefty;
     private String mCamId;
-    private Handler mHandler;//TCP connection을 thread상에서 진행할 것이기 때문에 Handler를 선언해준다.
     private Socket socket;
-    private byte[] sendByte;
-
+    private Boolean isConnect=false;
 
     private DataOutputStream dos;
     private DataInputStream dis;
-    private String ip ="172.30.1.65";
-    private int port=22;
+    private String ip ="172.30.1.62";
+    private int port=3000;
+    private int cameraframe=0;
 
-    CameraCaptureSession mCameraCaptureSession;
-    HandlerThread mBackgroundThread;
-    Handler mBackgroundHandler;
     static TextView server_result;
     private Hands hands;
     private CameraInput cameraInput;
     private SolutionGlSurfaceView glSurfaceView;
 
-    public Handler handler;
     public static cameraFragment newInstance() {
         return new cameraFragment();
     }
@@ -124,7 +120,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 .check();
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_camera, container, false);
-        mCamId = CAM_FRONT;
+        mCamId = CAM_FRONT;//캠 기본 설정은 전면
         mCompositeDisposable = new CompositeDisposable();
 
         String var4 = "";
@@ -146,7 +142,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         this.navController = Navigation.findNavController(view);
         TextView var10000 = (TextView)this._$_findCachedViewById(id.translated);
         server_result = (TextView)this._$_findCachedViewById(id.server_result);
-
 
         Intrinsics.checkNotNullExpressionValue(var10000, "translated");
 
@@ -183,14 +178,13 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         if(var2!=null) {
             if (var2 == var3) {
                 switch (mCamId) {
-                    case CAM_REAR:
-                        mCamId = CAM_FRONT;
-                        break;
-                    case CAM_FRONT:
+                    case CAM_FRONT://전면 카메라 사용 중일 경우 후방 카메라 사용
                         mCamId = CAM_WHAT;
+                        changeCamera();
                         break;
-                    case CAM_WHAT:
-                        mCamId = CAM_REAR;
+                    case CAM_WHAT://후방 카메라 사용 중일 경우 전방 카메라 사용
+                        mCamId = CAM_FRONT;
+                        changeCamera();
                         break;
                 }
             }
@@ -240,20 +234,19 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         glSurfaceView.setRenderInputImage(true);
 
         // Set the result listener to update the GLSurfaceView with the hands data and request rendering
-        hands.setResultListener(result -> {
+        hands.setResultListener(result -> {//프레임에 따른 결과가 나올때마다 실행되는 것
             glSurfaceView.setRenderData(result);
             glSurfaceView.requestRender();
-            x = getX();
-            y = getY();
-            z = getZ();
+            cameraframe++;
+            if(cameraframe%20==0) {
+                x = getX();
+                y = getY();
+                lefty=getleftY();
+                leftx=getleftX();
+                receiveServerData();//서버로 보내고 받고 해보자.
+                Log.w("cameraframe", "cameraframe"+cameraframe);
 
-            //connect();//서버 연결
-            receiveServerData();//서버로 보내고 받고 해보자.
-            for(int i=0;i<21;i++) {
-                //sendToServer(x[i]);
-                //Log.d("", "cameraFragment쪽에서 받아온 포인트[" + i + "] 값 : x " + String.valueOf(x[i]) + " y " + String.valueOf(y[i]) + " z " + String.valueOf(z[i]));
             }
-
         });
 
         glSurfaceView.post(this::startCamera);
@@ -267,13 +260,23 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     }
 
     private void startCamera() {
-        cameraInput.start(
+        if(mCamId==CAM_FRONT){
+            cameraInput.start(
                 getActivity(),
                 hands.getGlContext(),
                 CameraInput.CameraFacing.FRONT,
                 glSurfaceView.getWidth(),
                 glSurfaceView.getHeight()
         );
+        } else if (mCamId==CAM_WHAT) {
+            cameraInput.start(
+                    getActivity(),
+                    hands.getGlContext(),
+                    CameraInput.CameraFacing.BACK,
+                    glSurfaceView.getWidth(),
+                    glSurfaceView.getHeight()
+            );
+        }
     }
     public View _$_findCachedViewById(int var1) {
         if (this._$_findViewCache == null) {
@@ -303,17 +306,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     PermissionListener permission = new PermissionListener() {
         @Override
         public void onPermissionGranted() {
-            Toast.makeText(getContext(), "권한 허가", Toast.LENGTH_SHORT).show();
             setupStreamingModePipeline();
-            glSurfaceView.post(new Runnable() {
-                @Override
-                public void run() {
-                    //startCamera();
-                }
-            });
             glSurfaceView.setVisibility(View.VISIBLE);
-
-
         }
 
         @Override
@@ -326,17 +320,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     public void onActivityCreated(@androidx.annotation.Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         assert getActivity() != null;
-    }
-
-    private void stopBackgroundThread() {
-        mBackgroundThread.quitSafely();
-        try {
-            mBackgroundThread.join();
-            mBackgroundThread = null;
-            mBackgroundHandler = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
     private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
@@ -355,14 +338,13 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     }
 
     void connect(){//서버에 연결
-
-        //mHandler = new Handler();
         Thread connectThread = new Thread(new Runnable() {
             public void run() {
                 // Server connection. Socket communication implementation
                 try {
                     socket = new Socket(ip, port);
                     Log.w("서버 접속됨", "서버 접속됨");
+                    isConnect=true;
                 } catch (IOException e1) {
                     Log.w("서버접속못함", "서버접속못함");
                     server_result.setText("서버 접속에 실패하였습니다. 다시 시도해주세요.");
@@ -386,48 +368,39 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 @Override
                 public void run() {
                     try {
-                        dos = new DataOutputStream(socket.getOutputStream());
-                        dis = new DataInputStream(socket.getInputStream());
-                        dos.writeUTF("시그널 어스에서 연결 요청");
-                        dos.flush();
-                        Log.w("Buffer", "버퍼 생성 잘됨");
-                        while (true) {
+                            dos = new DataOutputStream(socket.getOutputStream());
+                            dis = new DataInputStream(socket.getInputStream());
+                            dos.writeUTF("연결중");
+                            dos.flush();
+                            for (int i = 0; i < 21; i++) {
+                                dos.writeUTF("&" + String.valueOf(x[i]));
+                                dos.flush();
+                                dos.writeUTF("&" + String.valueOf(y[i]));
+                                dos.flush();
+                                dos.writeUTF("&" + String.valueOf(leftx[i]));
+                                dos.flush();
+                                dos.writeUTF("&" + String.valueOf(lefty[i]));
+                                dos.flush();
+                            }
+                            Log.w("Buffer", "버퍼 생성 잘됨");
 
                             try {
                                 String line = "";
                                 int line2;
-                                while (true) {
                                     //line = (String) dis.readUTF();
                                     line2 = (int) dis.read();
-                                    //Log.w("서버에서 받아온 값 ", "" + line);
-                                    //Log.w("서버에서 받아온 값 ", "" + line2);
-
-                                    if (line2 > 0) {
-
-                                        Log.w("------서버에서 받아온 값 ", "" + line2);
-                                        for (int i=0;i<21;i++){
-                                            dos.writeUTF("&"+String.valueOf(x[i]));
-                                            dos.flush();
-                                            dos.writeUTF("&"+String.valueOf(y[i]));
-                                            dos.flush();
-                                            dos.writeUTF("&"+String.valueOf(z[i]));
-                                            dos.flush();
-
-                                        }
-                                        server_result.setText(line2);
-
-                                    }
-                                    if (line2 == 99) {
-                                        Log.w("------서버에서 받아온 값 ", "" + line2);
+                                    Log.w("서버에서 받아온 값 ", "" + line2);
+                                    if (line=="종료") {
                                         socket.close();
-
-                                        break;
+                                    }else {
+                                        server_result.setText(line);
                                     }
-                                }
+
+
                             } catch (Exception e) {
 
                             }
-                        }
+
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -471,7 +444,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         {
             public void run() {
                 try {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();//그냥 바이트로 보내는 것
                     DataOutputStream dosTemp = new DataOutputStream(baos);
                     dosTemp.writeFloat(data);
                     dosTemp.flush();
@@ -508,15 +481,42 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         return new String(encoded, StandardCharsets.UTF_8);//문자열로 바꾸기 위해 UTF8로 디코딩을 해준다.
     }
 
-
     CompositeDisposable mCompositeDisposable;
 
     // $FF: synthetic method
+    private void changeCamera(){
+        try {
+            socket.close();
+            isConnect=false;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        cameraInput.close();
+        binding.control.removeView(glSurfaceView);
+        connect();
+        setupStreamingModePipeline();
+    }
     public void onDestroyView() {
-        stopBackgroundThread();
+        Thread sendThread = new Thread() {
+        public void run() {
+            try {
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF("끝");
+                dos.flush();
+                socket.close();
+
+            } catch (Exception e) {
+                Log.w("Error", "An error occurred while sending data");
+                e.printStackTrace();
+            }
+        }
+    };sendThread.start();
+        Log.w("End", "종료");
+        cameraInput.close();
+        binding.control.removeView(glSurfaceView);
+        isConnect=false;
         super.onDestroyView();
         this._$_clearFindViewByIdCache();
-        cameraInput.close();
     }
 }
 
