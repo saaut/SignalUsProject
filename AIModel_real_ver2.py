@@ -7,14 +7,14 @@ import tensorflow as tf
 from collections import OrderedDict
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, SimpleRNN
+from tensorflow.keras.layers import Dense, SimpleRNN, ReLU
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.optimizers import Adam
 import inspect
 import pprint
 
 # 폴더 내의 모든 csv 파일을 가져옵니다.
-folder_path = '/Users/kushiro/Downloads/01/'  #주의: 레이블의 범주가 너무 많으면 정확도가 떨어집니다! 한 레이블 범주당 중복되는 데이터량이 많아야 좋을 거 같아요.
+folder_path = '/Users/kushiro/Downloads/1,8/'  #주의: 레이블의 범주가 너무 많으면 정확도가 떨어집니다! 한 레이블 범주당 중복되는 데이터량이 많아야 좋을 거 같아요.
 csv_files = glob.glob(folder_path + '*.csv')
 csv_files = sorted(csv_files)
 # 라벨링 데이터 정의
@@ -52,7 +52,7 @@ labels = [label_mapping[label] for label in labels]     #문자열 형식의 정
 
 
 # 시퀀스와 라벨을 numpy 배열로 변환
-sequences = pad_sequences(sequences, dtype='float32', padding='post')  # 시퀀스 길이를 맞춰주기 위해 패딩 추가(가장 배열 길이가 긴 sequences 요소를 기준으로 배열 길이를 맞춤)
+sequences = pad_sequences(sequences, dtype='float32', padding='post', maxlen=230)  # 시퀀스 길이를 맞춰주기 위해 패딩 추가(가장 배열 길이가 긴 sequences 요소를 기준으로 배열 길이를 맞춤)
 labels = np.array(labels)
 
 # 데이터와 라벨을 동시에 섞기 위해 인덱스 생성
@@ -64,8 +64,8 @@ sequences = sequences[indices]
 labels = labels[indices]
 
 # 데이터를 훈련, 검증, 테스트 세트로 분할
-train_data_ratio = 0.7
-validation_data_ratio = 0.15
+train_data_ratio = 0.8
+validation_data_ratio = 0.1
 num_sequences = len(sequences)
 num_train = int(num_sequences * train_data_ratio)
 num_val = int(num_sequences * validation_data_ratio)
@@ -105,9 +105,11 @@ with tf.device('/CPU:0'):
     model.add(SimpleRNN(units=64, return_sequences=True))
     model.add(SimpleRNN(units=64, return_sequences=True))
     model.add(SimpleRNN(units=64, return_sequences=True))
-    model.add(SimpleRNN(units=32))
+    model.add(SimpleRNN(units=64, return_sequences=True))
+    model.add(SimpleRNN(units=64, return_sequences=True))
+    model.add(SimpleRNN(units=64))
 
-    model.add(Dense(units=output_dim, activation='softmax'))
+    model.add(Dense(units=output_dim, activation='sigmoid'))
 
     # Optimizer 설정
     optimizer = Adam(learning_rate=0.0005)      #학습율 조절을 통해 학습의 강도를 조절(너무 작으면 학습이 느리고 너무 크면 수렴되지 않고 발산)
@@ -119,7 +121,7 @@ with tf.device('/CPU:0'):
     model.summary()
 
     #훈련(학습) 단계
-    model.fit(train_data, train_labels, epochs=11, batch_size=32, validation_data=(validation_data, validation_labels))
+    model.fit(train_data, train_labels, epochs=50, batch_size=64, validation_data=(validation_data, validation_labels))
 
 #모델 성능 평가
 loss, accuracy = model.evaluate(test_data, test_labels)
@@ -132,3 +134,5 @@ print(f"loss: {loss:.4f}, accuracy: {accuracy:.4f}")
 print(f"테스트한 데이터 수: {len(predictions)}")
 max_indices = np.argmax(predictions, axis=1)
 print(f"예측한 정답: {max_indices}")
+
+model.save('my model2')
