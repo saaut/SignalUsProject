@@ -1,14 +1,13 @@
 package com.example.signalussample1_java.fragment;
 
-
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getX;
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getY;
-import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getleftY;
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getleftX;
-
-import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getZ;
+import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getleftY;
+import com.example.signalussample1_java.fragment.CameraInput.*;
 
 import android.Manifest;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -16,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,30 +27,31 @@ import androidx.navigation.Navigation;
 
 import com.example.signalussample1_java.R;
 import com.example.signalussample1_java.R.id;
-
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-
-
-import io.reactivex.disposables.CompositeDisposable;
-import kotlin.Metadata;
-import kotlin.jvm.internal.Intrinsics;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import com.example.signalussample1_java.databinding.FragmentCameraBinding;
-import com.google.mediapipe.solutioncore.CameraInput;
+//import com.google.mediapipe.solutioncore.CameraInput;
 import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+
+import io.reactivex.disposables.CompositeDisposable;
+import kotlin.Metadata;
+import kotlin.jvm.internal.Intrinsics;
 
 @Metadata(
         mv = {1, 7, 1},
@@ -58,6 +59,7 @@ import com.gun0912.tedpermission.normal.TedPermission;
         d1 = {"\u0000B\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\u0018\u00002\u00020\u00012\u00020\u0002B\u0005¢\u0006\u0002\u0010\u0003J\u0012\u0010\u0010\u001a\u00020\u00112\b\u0010\u0012\u001a\u0004\u0018\u00010\u0013H\u0016J&\u0010\u0014\u001a\u0004\u0018\u00010\u00132\u0006\u0010\u0015\u001a\u00020\u00162\b\u0010\u0017\u001a\u0004\u0018\u00010\u00182\b\u0010\u0019\u001a\u0004\u0018\u00010\u001aH\u0016J\u001a\u0010\u001b\u001a\u00020\u00112\u0006\u0010\u001c\u001a\u00020\u00132\b\u0010\u0019\u001a\u0004\u0018\u00010\u001aH\u0016R\u001a\u0010\u0004\u001a\u00020\u0005X\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0006\u0010\u0007\"\u0004\b\b\u0010\tR\u001a\u0010\n\u001a\u00020\u000bX\u0086.¢\u0006\u000e\n\u0000\u001a\u0004\b\f\u0010\r\"\u0004\b\u000e\u0010\u000f¨\u0006\u001d"},
         d2 = {"Lcom/example/signalussample1/fragment/cameraFragment;", "Landroidx/fragment/app/Fragment;", "Landroid/view/View$OnClickListener;", "()V", "body_part", "", "getBody_part", "()Ljava/lang/String;", "setBody_part", "(Ljava/lang/String;)V", "navController", "Landroidx/navigation/NavController;", "getNavController", "()Landroidx/navigation/NavController;", "setNavController", "(Landroidx/navigation/NavController;)V", "onClick", "", "v", "Landroid/view/View;", "onCreateView", "inflater", "Landroid/view/LayoutInflater;", "container", "Landroid/view/ViewGroup;", "savedInstanceState", "Landroid/os/Bundle;", "onViewCreated", "view", "app_debug"}
 )
+
 public final class cameraFragment extends Fragment implements View.OnClickListener  {
     @NotNull
     private String body_part = "";
@@ -65,31 +67,39 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private HashMap _$_findViewCache;
     private static final String TAG = "VideoFragment";
 
+    private com.example.signalussample1_java.fragment.CameraInput cameraInput;
     FragmentCameraBinding binding;
 
     // 카메라 광각, 전면, 후면
     private static final String CAM_WHAT = "2";
     private static final String CAM_FRONT = "1";
     private static final String CAM_REAR = "0";
+
+    int desiredWidth = 240; // 원하는 가로 해상도
+    int desiredHeight = 480; // 원하는 세로 해상도
     float[] x ;
     float[] y ;
 
     float[] leftx;
     float[] lefty;
+    private float[] coords;
     private String mCamId;
     private Socket socket;
+    private PrintWriter out;
     private Boolean isConnect=false;
-
     private DataOutputStream dos;
     private DataInputStream dis;
-    private String ip ="172.30.1.62";
-    private int port=3000;
+    private String ip ="172.30.1.51";
+    private int port=5555;
     private int cameraframe=0;
+
+    private String connect_tag = "connect";
 
     static TextView server_result;
     private Hands hands;
-    private CameraInput cameraInput;
+    //private CameraInput cameraInput;
     private SolutionGlSurfaceView glSurfaceView;
+    Button recordButton;
 
     public static cameraFragment newInstance() {
         return new cameraFragment();
@@ -116,7 +126,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 .setPermissionListener(permission)
                 .setRationaleMessage("녹화를 위하여 권한을 허용해주세요.")
                 .setDeniedMessage("권한이 거부되었습니다. 설정 > 권한에서 허용해주세요.")
-                .setPermissions(android.Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.RECORD_AUDIO, Manifest.permission.INTERNET)
+                .setPermissions(android.Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.RECORD_AUDIO, Manifest.permission.INTERNET)
                 .check();
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_camera, container, false);
@@ -152,9 +162,13 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         ((ImageView)this._$_findCachedViewById(id.stt_btn)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.switchImgBtn)).setOnClickListener((View.OnClickListener)this);
         ((ImageView)this._$_findCachedViewById(id.imageView12)).setOnClickListener((View.OnClickListener)this);
+        ((Button)this._$_findCachedViewById(id.recordStartButton)).setOnClickListener((View.OnClickListener)this);
 
+        recordButton=view.findViewById(id.recordStartButton);
 
-        connect();
+//        connect4(ip, port);
+//        connect2();
+//        connect(ip, port);
     }
 
     public void onClick(@Nullable View v) {
@@ -189,12 +203,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 }
             }
         }
-        var3 = id.imageView12;
-        if(var2!=null){
-            if(var2==var3){
-
-            }
-        }
         var3 = id.back_btn;
         if (var2 != null) {
             if (var2 == var3) {
@@ -205,12 +213,30 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
                 var10000.popBackStack();
             }
+        }var3 = id.recordStartButton;
+        if (var2 != null){
+            if(var2== var3){
+                CharSequence text = recordButton.getText();
+                if ("녹화 시작".equals(text)) {
+                    connect3(port);
+                    recordButton.setText("녹화 중지");
+                } else if ("녹화 중지".equals(text)) {
+                    sendCloseSignal();
+                    recordButton.setText("녹화 시작");
+                }
+            }
         }
 
     }
 
     // mediapipe hands 라이브러리 사용하여 스트리밍 모드의 파이프라인을 설정한다.
     private void setupStreamingModePipeline() {//카메라 입력 프레임을 지속적으로 처리하여, 실시간으로 손을 감지하는 스트리밍 모드용 파이프라인을 설정한다.
+        coords = new float[84];
+        for (int i = 0; i < coords.length; i++) {
+            coords[i] = 0.0f;
+        }
+
+        HandsResultGlRenderer renderer = new HandsResultGlRenderer();
         // Initialize the Hands pipeline
         hands = new Hands(//손 감지
                 getContext(),
@@ -221,6 +247,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                         .build()
         );
         hands.setErrorListener((message, e) -> Log.e("TAG", "MediaPipe Hands error: " + message));
+
 
         // Create the camera input and set the new frame listener to send frames to the Hands pipeline
         cameraInput = new CameraInput(getActivity());//카메라 입력 프레임에 액세스 할 수 있다.
@@ -233,19 +260,24 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
         glSurfaceView.setRenderInputImage(true);
 
+
+
         // Set the result listener to update the GLSurfaceView with the hands data and request rendering
         hands.setResultListener(result -> {//프레임에 따른 결과가 나올때마다 실행되는 것
             glSurfaceView.setRenderData(result);
             glSurfaceView.requestRender();
             cameraframe++;
-            if(cameraframe%25==0) {
-                x = getX();
-                y = getY();
-                lefty=getleftY();
-                leftx=getleftX();
-                receiveServerData();//서버로 보내고 받고 해보자.
-                Log.w("cameraframe", "cameraframe"+cameraframe);
+            if(cameraframe%6==0) {
+                System.arraycopy(getX(), 0, coords, 0, 21);
+                System.arraycopy(getY(), 0, coords, 21, 21);
+                System.arraycopy(getleftX(), 0, coords, 42, 21);
+                System.arraycopy(getleftY(), 0, coords, 63, 21);
 
+                Log.d("cameraframe", "좌표 값"+coords[4]);
+                if(isConnect==true) {
+                    sendCoords(coords);
+                }
+                Log.w("cameraframe", "cameraframe"+cameraframe);
             }
         });
 
@@ -262,12 +294,12 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private void startCamera() {
         if(mCamId==CAM_FRONT){
             cameraInput.start(
-                getActivity(),
-                hands.getGlContext(),
-                CameraInput.CameraFacing.FRONT,
-                glSurfaceView.getWidth(),
-                glSurfaceView.getHeight()
-        );
+                    getActivity(),
+                    hands.getGlContext(),
+                    CameraInput.CameraFacing.FRONT,
+                    glSurfaceView.getWidth(),
+                    glSurfaceView.getHeight()
+            );
         } else if (mCamId==CAM_WHAT) {
             cameraInput.start(
                     getActivity(),
@@ -337,82 +369,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
     }
 
-    void connect(){//서버에 연결
-        Thread connectThread = new Thread(new Runnable() {
-            public void run() {
-                // Server connection. Socket communication implementation
-                try {
-                    socket = new Socket(ip, port);
-                    Log.w("서버 접속됨", "서버 접속됨");
-                    isConnect=true;
-                } catch (IOException e1) {
-                    Log.w("서버접속못함", "서버접속못함");
-                    server_result.setText("서버 접속에 실패하였습니다. 다시 시도해주세요.");
-                    e1.printStackTrace();
-                }
-            }
-        });
-        connectThread.start();
-        try {
-            connectThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Connection established");
-
-    }
-    private void receiveServerData(){
-
-        if (socket != null && socket.isConnected()) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                            dos = new DataOutputStream(socket.getOutputStream());
-                            dis = new DataInputStream(socket.getInputStream());
-                            
-                            for (int i = 0; i < 21; i++) {
-                                dos.writeUTF("," + String.valueOf(x[i]));
-                                dos.flush();
-                                dos.writeUTF("," + String.valueOf(y[i]));
-                                dos.flush();
-                            }
-                            for (int i = 0; i < 21; i++){
-                                dos.writeUTF("," + String.valueOf(leftx[i]));
-                                dos.flush();
-                                dos.writeUTF("," + String.valueOf(lefty[i]));
-                                dos.flush();
-                            }
-                            Log.w("Buffer", "버퍼 생성 잘됨");
-
-                            try {
-                                String line = "";
-                                int line2;
-                                    //line = (String) dis.readUTF();
-                                    line2 = (int) dis.read();
-                                    Log.w("서버에서 받아온 값 ", "" + line2);
-                                    if (line=="종료") {
-                                        socket.close();
-                                    }else {
-                                        server_result.setText(line);
-                                    }
-
-
-                            } catch (Exception e) {
-
-                            }
-
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.w("Buffer", "버퍼 생성 잘못됨");
-                    }
-
-                }
-            });
-            thread.start();
-    }
-    }
     private void sendToServer(byte[] bytes){
         Thread sendThread = new Thread() {
             public void run() {
@@ -485,7 +441,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     CompositeDisposable mCompositeDisposable;
 
     // $FF: synthetic method
-    private void changeCamera(){
+    private void changeCamera(){    //체인지카메라를 사용하기 전에 코드 검토 및 수정 필수!!!
         try {
             socket.close();
             isConnect=false;
@@ -494,24 +450,173 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         }
         cameraInput.close();
         binding.control.removeView(glSurfaceView);
-        connect();
+        connect(ip, port);
         setupStreamingModePipeline();
     }
-    public void onDestroyView() {
-        Thread sendThread = new Thread() {
-        public void run() {
-            try {
-                dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF("끝");
-                dos.flush();
-                socket.close();
 
-            } catch (Exception e) {
-                Log.w("Error", "An error occurred while sending data");
-                e.printStackTrace();
+    private void connect2() {
+        Thread connectThread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    socket = new Socket(ip, port);
+                    Log.w(connect_tag, "서버 접속됨");
+                    isConnect=true;
+                } catch (IOException e1) {
+                    Log.w(connect_tag, "서버 접속 못함: " + e1.getMessage());
+                    e1.printStackTrace();
+                }
             }
+        });
+        connectThread.start();
+        try {
+            connectThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-    };sendThread.start();
+        System.out.println("Connection established");
+    }
+    private void connect(String ip, int port) {
+        Thread connectThread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    socket = new Socket(ip, port);
+                    out = new PrintWriter(socket.getOutputStream(), true);
+                    Log.w(connect_tag, "서버 접속됨");
+                    isConnect=true;
+                } catch (IOException e1) {
+                    Log.w(connect_tag, "서버접속못함");
+                    e1.printStackTrace();
+                }
+            }
+        });
+        connectThread.start();
+        try {
+            connectThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Connection established");
+    }
+    private void connection(String ip, int port) {
+        try {
+            Socket socket = new Socket(ip, port);
+            Log.d(connect_tag, "서버에 연결되었습니다.");
+            // 소켓 사용 코드 작성
+        } catch (IOException e) {
+            Log.w(connect_tag, "서버 연결 실패: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private Socket clientSocket;
+
+    private void connect3(int port) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    Log.d(connect_tag, "서버 연결 대기 중...");
+
+                    clientSocket = serverSocket.accept();
+                    Log.d(connect_tag, "클라이언트와 연결되었습니다.");
+                    isConnect=true;
+
+                } catch (IOException e) {
+                    Log.w(connect_tag, "서버 연결 대기 중 에러: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void connect4(String host, int port) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // ServerSocket에서 Socket으로 변경하였습니다.
+                    Socket clientSocket = new Socket(host, port);
+                    Log.d(connect_tag, "서버에 연결하였습니다.");
+                    isConnect=true;
+
+                } catch (IOException e) {
+                    Log.w(connect_tag, "서버 연결 중 에러: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void sendCoords(float[] coords) {
+        Thread sendCoordsThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (isConnect) {
+                    try {
+                        DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
+
+                        // 배열 길이 전송
+                        int length = coords.length;
+                        dos.writeInt(length);
+
+                        // 배열 값 전송
+                        for (float coord : coords) {
+                            dos.writeFloat(coord);
+                        }
+                        dos.flush();  // 버퍼 비우기
+
+                        Log.d("sendCoords", "Coords 전송 완료");
+                    } catch (IOException e) {
+                        Log.e("sendCoords", "Coords 전송 중 에러: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.w("sendCoords", "서버에 접속하지 않았습니다.");
+                }
+            }
+        });
+        sendCoordsThread.start();
+    }
+    public void sendCloseSignal(){
+        Log.w("sendCoords", "버튼 클릭");
+        coords[0]=99;
+        Thread sendCloseSignalThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (isConnect) {
+                    try {
+                        DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
+
+                        // 배열 길이 전송
+                        int length = 1;
+                        dos.writeInt(length);
+
+                        // 배열 값 전송
+                        dos.writeFloat(99);
+                        dos.flush();  // 버퍼 비우기
+
+                        Log.d("sendCoords", "CloseSignal 전송 완료");
+                    } catch (IOException e) {
+                        Log.e("sendCoords", "CloseSignal 전송 중 에러: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.w("CloseSignal", "서버에 접속하지 않았습니다.");
+                }
+            }
+        });
+        sendCloseSignalThread.start();
+    }
+
+    public void onDestroyView() {
+        try {
+            socket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Log.w("End", "종료");
         cameraInput.close();
         binding.control.removeView(glSurfaceView);
@@ -520,4 +625,3 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         this._$_clearFindViewByIdCache();
     }
 }
-
