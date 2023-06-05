@@ -9,6 +9,8 @@ import com.example.signalussample1_java.fragment.CameraInput.*;
 import android.Manifest;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -20,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -29,6 +32,7 @@ import com.example.signalussample1_java.R;
 import com.example.signalussample1_java.R.id;
 import com.example.signalussample1_java.databinding.FragmentCameraBinding;
 //import com.google.mediapipe.solutioncore.CameraInput;
+import com.google.common.base.Utf8;
 import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
@@ -38,11 +42,10 @@ import com.gun0912.tedpermission.normal.TedPermission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +56,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import kotlin.Metadata;
 import kotlin.jvm.internal.Intrinsics;
 
-@Metadata(
+@ExperimentalUseCaseGroup @Metadata(
         mv = {1, 7, 1},
         k = 1,
         d1 = {"\u0000B\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\u0018\u00002\u00020\u00012\u00020\u0002B\u0005¢\u0006\u0002\u0010\u0003J\u0012\u0010\u0010\u001a\u00020\u00112\b\u0010\u0012\u001a\u0004\u0018\u00010\u0013H\u0016J&\u0010\u0014\u001a\u0004\u0018\u00010\u00132\u0006\u0010\u0015\u001a\u00020\u00162\b\u0010\u0017\u001a\u0004\u0018\u00010\u00182\b\u0010\u0019\u001a\u0004\u0018\u00010\u001aH\u0016J\u001a\u0010\u001b\u001a\u00020\u00112\u0006\u0010\u001c\u001a\u00020\u00132\b\u0010\u0019\u001a\u0004\u0018\u00010\u001aH\u0016R\u001a\u0010\u0004\u001a\u00020\u0005X\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0006\u0010\u0007\"\u0004\b\b\u0010\tR\u001a\u0010\n\u001a\u00020\u000bX\u0086.¢\u0006\u000e\n\u0000\u001a\u0004\b\f\u0010\r\"\u0004\b\u000e\u0010\u000f¨\u0006\u001d"},
@@ -73,23 +76,15 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     // 카메라 광각, 전면, 후면
     private static final String CAM_WHAT = "2";
     private static final String CAM_FRONT = "1";
-    private static final String CAM_REAR = "0";
 
-    int desiredWidth = 240; // 원하는 가로 해상도
-    int desiredHeight = 480; // 원하는 세로 해상도
-    float[] x ;
-    float[] y ;
-
-    float[] leftx;
-    float[] lefty;
     private float[] coords;
     private String mCamId;
-    private Socket socket;
-    private PrintWriter out;
+
     private Boolean isConnect=false;
+    private Boolean isPyConnect=true;
     private DataOutputStream dos;
     private DataInputStream dis;
-    private String ip ="172.30.1.51";
+    private String ip ="192.168.1.8";
     private int port=5555;
     private int cameraframe=0;
 
@@ -166,9 +161,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
         recordButton=view.findViewById(id.recordStartButton);
 
-//        connect4(ip, port);
-//        connect2();
-//        connect(ip, port);
     }
 
     public void onClick(@Nullable View v) {
@@ -369,68 +361,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
     }
 
-    private void sendToServer(byte[] bytes){
-        Thread sendThread = new Thread() {
-            public void run() {
-                try {
-                    dos.writeUTF(Integer.toString(bytes.length)); // Send the length of the byte array as a string
-                    dos.flush();
 
-                    dos.write(bytes); // Send the byte array
-                    dos.flush();
-
-                    String result = readUTF8(dis); // Read the response from the server
-
-                    socket.close();
-                } catch (Exception e) {
-                    Log.w("Error", "An error occurred while sending data");
-                    e.printStackTrace();
-                }
-            }
-        };
-        sendThread.start();
-        try {
-            sendThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Data sent successfully");
-    }
-    private void sendToServer(float data){
-        Thread sendThread = new Thread()
-        {
-            public void run() {
-                try {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();//그냥 바이트로 보내는 것
-                    DataOutputStream dosTemp = new DataOutputStream(baos);
-                    dosTemp.writeFloat(data);
-                    dosTemp.flush();
-
-                    byte[] byteData = baos.toByteArray();
-
-                    dos.writeUTF(Integer.toString(byteData.length)); // Send the length of the byte array as a string
-                    dos.flush();
-
-                    dos.write(byteData); // Send the byte array
-                    dos.flush();
-
-                    String result = readUTF8(dis); // Read the response from the server
-
-                    socket.close();
-                } catch (Exception e) {
-                    Log.w("Error", "An error occurred while sending data");
-                    e.printStackTrace();
-                }
-            }
-        };
-        sendThread.start();
-        try {
-            sendThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Data sent successfully");
-    }
     public String readUTF8 (DataInputStream in) throws IOException {
         int length = in.readInt();//문자열의 길이를 받는다.
         byte[] encoded = new byte[length];//데이터 손실 없이 정확한 길이의 문자열을 받기 위해 bytearray를 생성한다.
@@ -438,89 +369,65 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         return new String(encoded, StandardCharsets.UTF_8);//문자열로 바꾸기 위해 UTF8로 디코딩을 해준다.
     }
 
+
     CompositeDisposable mCompositeDisposable;
 
     // $FF: synthetic method
-    private void changeCamera(){    //체인지카메라를 사용하기 전에 코드 검토 및 수정 필수!!!
-        try {
-            socket.close();
-            isConnect=false;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private void changeCamera(){    //실질적 사용을 위해서는 오른손 왼손을 반전시켜서 적용하는 코드 필요.
+        isConnect=false;
         cameraInput.close();
         binding.control.removeView(glSurfaceView);
-        connect(ip, port);
         setupStreamingModePipeline();
     }
 
-    private void connect2() {
-        Thread connectThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    socket = new Socket(ip, port);
-                    Log.w(connect_tag, "서버 접속됨");
-                    isConnect=true;
-                } catch (IOException e1) {
-                    Log.w(connect_tag, "서버 접속 못함: " + e1.getMessage());
-                    e1.printStackTrace();
-                }
-            }
-        });
-        connectThread.start();
-        try {
-            connectThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Connection established");
-    }
-    private void connect(String ip, int port) {
-        Thread connectThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    socket = new Socket(ip, port);
-                    out = new PrintWriter(socket.getOutputStream(), true);
-                    Log.w(connect_tag, "서버 접속됨");
-                    isConnect=true;
-                } catch (IOException e1) {
-                    Log.w(connect_tag, "서버접속못함");
-                    e1.printStackTrace();
-                }
-            }
-        });
-        connectThread.start();
-        try {
-            connectThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Connection established");
-    }
-    private void connection(String ip, int port) {
-        try {
-            Socket socket = new Socket(ip, port);
-            Log.d(connect_tag, "서버에 연결되었습니다.");
-            // 소켓 사용 코드 작성
-        } catch (IOException e) {
-            Log.w(connect_tag, "서버 연결 실패: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     private Socket clientSocket;
+    private Socket pyClientSocket;
 
-    private void connect3(int port) {
+
+    /*private void connect3(int port) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     ServerSocket serverSocket = new ServerSocket(port);
                     Log.d(connect_tag, "서버 연결 대기 중...");
+                    for (int i=0 ;i<2;i++) {//클라이언트와의 연결, 해제를 각 클라이언트 당 한 번씩만 제공한다. 여러 번 연결할 땐 버튼 이용.
+                        if(i==0) {
+                            clientSocket = serverSocket.accept();
+                            Log.d(connect_tag, "자바 클라이언트와 연결되었습니다.");
+                            isConnect = true;
+                        } else if (i==1) {
+                            pyClientSocket=serverSocket.accept();
+                            Log.d(connect_tag,"파이썬 클라이언트와 연결되었습니다.");
+                            isPyConnect=true;
+                            Thread clientThread = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        dis = new DataInputStream(pyClientSocket.getInputStream());
 
-                    clientSocket = serverSocket.accept();
-                    Log.d(connect_tag, "클라이언트와 연결되었습니다.");
-                    isConnect=true;
+                                        String result = String.valueOf((dis.readUTF()));
+
+
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                // Update the UI with the obtained result
+                                                server_result.setText(result);
+                                            }
+                                        });
+
+                                        pyClientSocket.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
+                            // 클라이언트 스레드 시작
+                            clientThread.start();
+                        }
+                    }
 
                 } catch (IOException e) {
                     Log.w(connect_tag, "서버 연결 대기 중 에러: " + e.getMessage());
@@ -530,18 +437,62 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         }).start();
     }
 
-    private void connect4(String host, int port) {
+*/
+    private void connect3(int port) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    // ServerSocket에서 Socket으로 변경하였습니다.
-                    Socket clientSocket = new Socket(host, port);
-                    Log.d(connect_tag, "서버에 연결하였습니다.");
-                    isConnect=true;
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    Log.d(connect_tag, "Waiting for server connection...");
+                    for (int i = 0; i < 2; i++) {
+                        if (i == 0) {
+                            clientSocket = serverSocket.accept();
+                            Log.d(connect_tag, "Connected with Java client.");
+                            isConnect = true;
+                        } else if (i == 1) {
+                            pyClientSocket = serverSocket.accept();
+                            Log.d(connect_tag, "Connected with Python client.");
+                            isPyConnect = true;
+                            Thread clientThread = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        DataInputStream dis = new DataInputStream(pyClientSocket.getInputStream());
+
+                                        StringBuilder stringBuilder = new StringBuilder();
+                                        char delimiter = '\n';
+                                        int charValue;
+                                        while ((charValue = dis.read()) != -1) {
+                                            if (charValue == delimiter) {
+                                                break;  // End of string reached
+                                            }
+                                            stringBuilder.append((char) charValue);
+                                        }
+
+                                        final String result = stringBuilder.toString();
+
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                server_result.setText(result);
+                                            }
+                                        });
+
+                                        pyClientSocket.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
+                            // start client thread
+                            clientThread.start();
+                        }
+                    }
 
                 } catch (IOException e) {
-                    Log.w(connect_tag, "서버 연결 중 에러: " + e.getMessage());
+                    Log.w(connect_tag, "Error waiting for server connection: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -611,7 +562,6 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     public void onDestroyView() {
         try {
-            socket.close();
 
         } catch (Exception e) {
             e.printStackTrace();
