@@ -7,7 +7,7 @@ import tensorflow as tf
 from collections import OrderedDict
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
-from keras.layers import Dense, SimpleRNN, LSTM
+from keras.layers import Dense, SimpleRNN, LSTM, Flatten, Bidirectional
 from keras.layers import Dropout
 from keras.optimizers import Adam
 import inspect
@@ -18,7 +18,7 @@ folder_path = '/Users/soyeon/Downloads/csvFrom08/'  #주의: 레이블의 범주
 csv_files = glob.glob(folder_path + '*.csv')
 csv_files = sorted(csv_files)
 # 라벨링 데이터 정의
-label_file = 'answers.csv'
+label_file = '/Users/soyeon/Downloads/answers.csv'
 labels_dict = {}
 
 # 'answer.csv' 파일을 읽어 라벨링 데이터 생성
@@ -49,6 +49,17 @@ unique_labels = list(OrderedDict.fromkeys(labels))      #먼저 나온 순서대
 label_mapping = {label: i for i, label in enumerate(unique_labels)}     #정수 인코딩
 labels = [label_mapping[label] for label in labels]     #문자열 형식의 정답이 저장된 labels를 정수 형식으로 변환
 
+# 라벨과 라벨의 매핑 정보를 labels_dict에 저장
+labels_dict = {label: label_mapping[label] for label in unique_labels}
+
+# CSV 파일에 매핑 정보 저장
+label_mapping_file = '/Users/soyeon/Downloads/label_mapping.csv'
+with open(label_mapping_file, 'w', encoding='utf-8', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(['index', 'value'])
+    for index, value in labels_dict.items():
+        writer.writerow([value, index])
+
 # 시퀀스와 라벨을 numpy 배열로 변환
 sequences = pad_sequences(sequences, dtype='float32', padding='post')  # 시퀀스 길이를 맞춰주기 위해 패딩 추가(가장 배열 길이가 긴 sequences 요소를 기준으로 배열 길이를 맞춤)
 labels = np.array(labels)
@@ -62,8 +73,8 @@ sequences = sequences[indices]
 labels = labels[indices]
 
 # 데이터를 훈련, 검증, 테스트 세트로 분할
-train_data_ratio = 0.8
-validation_data_ratio = 0.2
+train_data_ratio = 0.5
+validation_data_ratio = 0.5
 num_sequences = len(sequences)
 num_train = int(num_sequences * train_data_ratio)
 num_val = int(num_sequences * validation_data_ratio)
@@ -91,7 +102,6 @@ print(f"검증 라벨 길이: {len(validation_labels)}")
 print(f"테스트 라벨: {test_labels}")
 print(f"테스트 라벨 길이: {len(test_labels)}")
 print(f"input_seq_length: {input_seq_length}, input_dim: {input_dim}, output_dim: {output_dim}")
-
 
 #CPU, GPU 선택
 with tf.device('/CPU:0'):
