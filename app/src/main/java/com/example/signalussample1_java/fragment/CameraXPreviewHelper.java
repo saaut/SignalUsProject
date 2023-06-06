@@ -216,7 +216,7 @@ public class CameraXPreviewHelper extends CameraHelper {
      * @param targetSize a predefined constant {@link #TARGET_SIZE}. If set to {@code null}, the
      *     helper will default to 1280 * 720.
      */
-    private void startCamera(
+    private void startCamera(//실질적 카메라 설정 부분
             Context context,
             LifecycleOwner lifecycleOwner,
             CameraFacing cameraFacing,

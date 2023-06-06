@@ -1,4 +1,5 @@
 package com.example.signalussample1_java.fragment;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 public final class firstSelectFragment extends Fragment implements View.OnClickListener {
     public NavController navController;
     private HashMap _$_findViewCache;
-
     @NotNull
     public final NavController getNavController() {
         NavController var10000 = this.navController;
@@ -51,6 +51,7 @@ public final class firstSelectFragment extends Fragment implements View.OnClickL
 
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         Intrinsics.checkNotNullParameter(view, "view");
+
         super.onViewCreated(view, savedInstanceState);
         this.navController = Navigation.findNavController(view);
         ((ImageView)this._$_findCachedViewById(id.body_head_img)).setOnClickListener((View.OnClickListener)this);

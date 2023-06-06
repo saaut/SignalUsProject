@@ -4,13 +4,11 @@ import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.ge
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getY;
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getleftX;
 import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.getleftY;
-import com.example.signalussample1_java.fragment.CameraInput.*;
 
 import android.Manifest;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -32,7 +30,6 @@ import com.example.signalussample1_java.R;
 import com.example.signalussample1_java.R.id;
 import com.example.signalussample1_java.databinding.FragmentCameraBinding;
 //import com.google.mediapipe.solutioncore.CameraInput;
-import com.google.common.base.Utf8;
 import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
@@ -44,7 +41,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -79,12 +75,14 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     private float[] coords;
     private String mCamId;
+    private ServerSocket serverSocket;
 
-    private Boolean isConnect=false;
+
+    private Boolean isJavaConnect =false;
     private Boolean isPyConnect=true;
     private DataOutputStream dos;
     private DataInputStream dis;
-    private String ip ="192.168.1.8";
+    private String ip ="172.30.1.33";
     private int port=5555;
     private int cameraframe=0;
 
@@ -94,6 +92,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private Hands hands;
     //private CameraInput cameraInput;
     private SolutionGlSurfaceView glSurfaceView;
+    private static int desiredWidth=1;
+    private static int desiredHeight=2;
     Button recordButton;
 
     public static cameraFragment newInstance() {
@@ -160,6 +160,13 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         ((Button)this._$_findCachedViewById(id.recordStartButton)).setOnClickListener((View.OnClickListener)this);
 
         recordButton=view.findViewById(id.recordStartButton);
+
+        try {
+            serverSocket = new ServerSocket(port);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 
@@ -266,7 +273,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                 System.arraycopy(getleftY(), 0, coords, 63, 21);
 
                 Log.d("cameraframe", "좌표 값"+coords[4]);
-                if(isConnect==true) {
+                if(isJavaConnect ==true) {
                     sendCoords(coords);
                 }
                 Log.w("cameraframe", "cameraframe"+cameraframe);
@@ -289,8 +296,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                     getActivity(),
                     hands.getGlContext(),
                     CameraInput.CameraFacing.FRONT,
-                    glSurfaceView.getWidth(),
-                    glSurfaceView.getHeight()
+                    desiredWidth=glSurfaceView.getWidth(),
+                    desiredHeight=glSurfaceView.getHeight()
             );
         } else if (mCamId==CAM_WHAT) {
             cameraInput.start(
@@ -374,7 +381,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     // $FF: synthetic method
     private void changeCamera(){    //실질적 사용을 위해서는 오른손 왼손을 반전시켜서 적용하는 코드 필요.
-        isConnect=false;
+        isJavaConnect =false;
         cameraInput.close();
         binding.control.removeView(glSurfaceView);
         setupStreamingModePipeline();
@@ -383,74 +390,19 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private Socket clientSocket;
     private Socket pyClientSocket;
 
-
-    /*private void connect3(int port) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ServerSocket serverSocket = new ServerSocket(port);
-                    Log.d(connect_tag, "서버 연결 대기 중...");
-                    for (int i=0 ;i<2;i++) {//클라이언트와의 연결, 해제를 각 클라이언트 당 한 번씩만 제공한다. 여러 번 연결할 땐 버튼 이용.
-                        if(i==0) {
-                            clientSocket = serverSocket.accept();
-                            Log.d(connect_tag, "자바 클라이언트와 연결되었습니다.");
-                            isConnect = true;
-                        } else if (i==1) {
-                            pyClientSocket=serverSocket.accept();
-                            Log.d(connect_tag,"파이썬 클라이언트와 연결되었습니다.");
-                            isPyConnect=true;
-                            Thread clientThread = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        dis = new DataInputStream(pyClientSocket.getInputStream());
-
-                                        String result = String.valueOf((dis.readUTF()));
-
-
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                // Update the UI with the obtained result
-                                                server_result.setText(result);
-                                            }
-                                        });
-
-                                        pyClientSocket.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-
-                            // 클라이언트 스레드 시작
-                            clientThread.start();
-                        }
-                    }
-
-                } catch (IOException e) {
-                    Log.w(connect_tag, "서버 연결 대기 중 에러: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-*/
     private void connect3(int port) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ServerSocket serverSocket = new ServerSocket(port);
                     Log.d(connect_tag, "Waiting for server connection...");
-                    for (int i = 0; i < 2; i++) {
-                        if (i == 0) {
+
+                    while(true){
+                        if (!isJavaConnect) {
                             clientSocket = serverSocket.accept();
                             Log.d(connect_tag, "Connected with Java client.");
-                            isConnect = true;
-                        } else if (i == 1) {
+                            isJavaConnect = true;
+                        } else if (isJavaConnect) {
                             pyClientSocket = serverSocket.accept();
                             Log.d(connect_tag, "Connected with Python client.");
                             isPyConnect = true;
@@ -503,7 +455,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         Thread sendCoordsThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (isConnect) {
+                if (isJavaConnect) {
                     try {
                         DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
 
@@ -535,7 +487,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         Thread sendCloseSignalThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (isConnect) {
+                if (isJavaConnect) {
                     try {
                         DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
 
@@ -558,19 +510,36 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             }
         });
         sendCloseSignalThread.start();
+        isJavaConnect=false;
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void onDestroyView() {
         try {
-
+            pyClientSocket.close();
+            clientSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
         Log.w("End", "종료");
+        try{
         cameraInput.close();
+        } catch(Exception e){
+
+        }
         binding.control.removeView(glSurfaceView);
-        isConnect=false;
+        isJavaConnect =false;
         super.onDestroyView();
         this._$_clearFindViewByIdCache();
     }
