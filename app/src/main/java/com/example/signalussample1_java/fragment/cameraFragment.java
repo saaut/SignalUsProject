@@ -92,8 +92,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     private Hands hands;
     //private CameraInput cameraInput;
     private SolutionGlSurfaceView glSurfaceView;
-    private static int desiredWidth=1;
-    private static int desiredHeight=2;
+    private static int desiredWidth=16;
+    private static int desiredHeight=9;
     Button recordButton;
 
     public static cameraFragment newInstance() {
@@ -134,6 +134,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
             var4 = arguments.getString("body_part", "");
         }
         body_part = var4;
+
 
         return binding.getRoot();
 
@@ -258,6 +259,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         glSurfaceView = new SolutionGlSurfaceView(getContext(), hands.getGlContext(), hands.getGlMajorVersion());
         glSurfaceView.setSolutionResultRenderer(new HandsResultGlRenderer());
         glSurfaceView.setRenderInputImage(true);
+        //glSurfaceView.setRotation(90.0f);
+
 
 
 
@@ -296,8 +299,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                     getActivity(),
                     hands.getGlContext(),
                     CameraInput.CameraFacing.FRONT,
-                    desiredWidth=glSurfaceView.getWidth(),
-                    desiredHeight=glSurfaceView.getHeight()
+                    desiredWidth,
+                    desiredHeight
             );
         } else if (mCamId==CAM_WHAT) {
             cameraInput.start(
@@ -519,6 +522,7 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
     }
 
     public void onDestroyView() {
+
         try {
             pyClientSocket.close();
             clientSocket.close();
@@ -538,7 +542,11 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         } catch(Exception e){
 
         }
+        try{
         binding.control.removeView(glSurfaceView);
+        } catch(Exception e){
+
+        }
         isJavaConnect =false;
         super.onDestroyView();
         this._$_clearFindViewByIdCache();

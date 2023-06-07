@@ -72,8 +72,8 @@ public class CameraXPreviewHelper extends CameraHelper {
      * requires a Handler. We want everything to run on the same thread, so we need an Executor that
      * is also a Handler.
      */
-    private static int desiredWidth=1920;
-    private static int desiredHeight=1080;
+    private static int desiredWidth=9;
+    private static int desiredHeight=16;
     private static final class SingleThreadHandlerExecutor implements Executor {
 
         private final HandlerThread handlerThread;
@@ -363,7 +363,7 @@ public class CameraXPreviewHelper extends CameraHelper {
 
     @Override
     public boolean isCameraRotated() {
-        return frameRotation % 180 == 90;
+        return frameRotation % 90 == 90;
     }
 
     @Override

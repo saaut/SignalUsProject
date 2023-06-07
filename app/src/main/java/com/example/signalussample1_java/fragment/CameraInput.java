@@ -132,7 +132,7 @@ public class CameraInput {
      */
     public void updateOutputSize(int width, int height) {
         Size displaySize = cameraHelper.computeDisplaySizeFromViewSize(new Size(width, height));
-        boolean isCameraRotated = cameraHelper.isCameraRotated();
+        boolean isCameraRotated = cameraHelper. isCameraRotated();
         Log.i(
                 TAG,
                 "Set camera output texture frame size to width="
