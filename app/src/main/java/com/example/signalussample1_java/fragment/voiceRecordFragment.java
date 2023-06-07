@@ -1,20 +1,38 @@
 package com.example.signalussample1_java.fragment;
 
+
+import static android.app.Activity.RESULT_OK;
+
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.view.View;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+
 import com.example.signalussample1_java.R.id;
 import com.example.signalussample1_java.R;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
+
 import kotlin.Metadata;
 import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 
 @Metadata(
         mv = {1, 7, 1},
@@ -25,6 +43,11 @@ import org.jetbrains.annotations.Nullable;
 public final class voiceRecordFragment extends Fragment implements View.OnClickListener {
     public NavController navController;
     private HashMap _$_findViewCache;
+    private TextView textView;
+    private SpeechRecognizer speechRecognizer;
+    private Intent speechRecognizerIntent;
+    private static final int REQUEST_CODE_SPEECH_INPUT = 100;
+    Button startButton;
 
     @NotNull
     public final NavController getNavController() {
@@ -44,15 +67,87 @@ public final class voiceRecordFragment extends Fragment implements View.OnClickL
     @Nullable
     public View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Intrinsics.checkNotNullParameter(inflater, "inflater");
-        return inflater.inflate(R.layout.fragment_voice_record, container, false);
+        //setContentView(R.layout.fragment_voice_record); // 레이아웃 파일에 맞게 수정해야 함
+        View rootView = inflater.inflate(R.layout.fragment_voice_record, container, false);
+        return rootView;
+
+        //return inflater.inflate(R.layout.fragment_voice_record, container, false);
     }
 
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         Intrinsics.checkNotNullParameter(view, "view");
         super.onViewCreated(view, savedInstanceState);
+
+        textView = view.findViewById(id.recordResultTextView);
+        startButton = view.findViewById(id.voiceRecordStartButton);
         this.navController = Navigation.findNavController(view);
-        ((ImageView)this._$_findCachedViewById(id.back_btn)).setOnClickListener((View.OnClickListener)this);
+        ((ImageView) this._$_findCachedViewById(id.back_btn)).setOnClickListener((View.OnClickListener) this);
+        ((Button)this._$_findCachedViewById(id.voiceRecordStartButton)).setOnClickListener((View.OnClickListener)this);
+
+
+        // Check for RECORD_AUDIO permission
+        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{android.Manifest.permission.RECORD_AUDIO}, 1);
+        }
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+        speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        // Set RecognitionListener
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            public void onReadyForSpeech(Bundle params) {
+                textView.setText("Listening...");
+            }
+
+            public void onBeginningOfSpeech() {
+                textView.setText("Listening...");
+            }
+
+            public void onRmsChanged(float rmsdB) {
+                // Do something with the RMS dB value if needed
+            }
+
+            @Override
+            public void onBufferReceived(byte[] buffer) {
+
+            }
+
+            public void onEndOfSpeech() {
+                textView.setText("");
+            }
+
+            public void onError(int error) {
+                textView.setText("Error: " + error);
+            }
+
+            public void onResults(Bundle results) {
+                // Get the recognized speech as text
+                ArrayList<String> speechResults =
+                        results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (speechResults != null && !speechResults.isEmpty()) {
+                    String recognizedSpeech = speechResults.get(0);
+                    textView.setText(recognizedSpeech);
+                } else {
+                    textView.setText("No speech recognized.");
+                }
+            }
+            public void onPartialResults(Bundle partialResults) {
+                // Handle partial recognition results if needed
+            }
+            public void onEvent(int eventType, Bundle params) {
+                // Handle events if needed
+            }
+        });
+
+
     }
+
+
+
 
     public void onClick(@Nullable View v) {
         Integer var2 = v != null ? v.getId() : null;
@@ -63,12 +158,44 @@ public final class voiceRecordFragment extends Fragment implements View.OnClickL
                 if (var10000 == null) {
                     Intrinsics.throwUninitializedPropertyAccessException("navController");
                 }
-
                 var10000.popBackStack();
             }
         }
+        var3 =id.voiceRecordStartButton;
+        if(var2 != null){
+            if(var2==var3){
+                CharSequence text = startButton.getText();
+                if ("녹음 시작".equals(text)) {
+                    speechRecognizer.startListening(speechRecognizerIntent);
+                    startButton.setText("녹음 중지");
+                } else if ("녹음 중지".equals(text)) {
+                    speechRecognizer.stopListening();
+                    startButton.setText("녹음 시작");
+                }
+            }
+        }
+
 
     }
+    // Initialize SpeechRecognizer
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_SPEECH_INPUT && resultCode == RESULT_OK && data != null) {
+            ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (result != null && !result.isEmpty()) {
+                String recognizedSpeech = result.get(0);
+                textView.setText(recognizedSpeech);
+            } else {
+                textView.setText("No speech recognized.");
+            }
+        }
+    }
+
 
     public View _$_findCachedViewById(int var1) {
         if (this._$_findViewCache == null) {
@@ -100,5 +227,8 @@ public final class voiceRecordFragment extends Fragment implements View.OnClickL
     public void onDestroyView() {
         super.onDestroyView();
         this._$_clearFindViewByIdCache();
+        if (speechRecognizer != null) {
+            speechRecognizer.destroy();
+        }
     }
 }

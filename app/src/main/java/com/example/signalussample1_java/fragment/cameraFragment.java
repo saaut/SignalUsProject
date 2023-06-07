@@ -7,7 +7,6 @@ import static com.example.signalussample1_java.fragment.HandsResultGlRenderer.ge
 
 import android.Manifest;
 
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -29,7 +28,6 @@ import androidx.navigation.Navigation;
 import com.example.signalussample1_java.R;
 import com.example.signalussample1_java.R.id;
 import com.example.signalussample1_java.databinding.FragmentCameraBinding;
-//import com.google.mediapipe.solutioncore.CameraInput;
 import com.google.mediapipe.solutioncore.SolutionGlSurfaceView;
 import com.google.mediapipe.solutions.hands.Hands;
 import com.google.mediapipe.solutions.hands.HandsOptions;
@@ -44,7 +42,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
@@ -80,9 +77,8 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
 
     private Boolean isJavaConnect =false;
     private Boolean isPyConnect=true;
-    private DataOutputStream dos;
-    private DataInputStream dis;
-    private String ip ="172.30.1.33";
+
+    private String ip ="172.30.1.31";
     private int port=5555;
     private int cameraframe=0;
 
@@ -371,20 +367,10 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
     }
 
-
-    public String readUTF8 (DataInputStream in) throws IOException {
-        int length = in.readInt();//문자열의 길이를 받는다.
-        byte[] encoded = new byte[length];//데이터 손실 없이 정확한 길이의 문자열을 받기 위해 bytearray를 생성한다.
-        in.readFully(encoded, 0, length);//해당 길이의 bytearray를 받는다.
-        return new String(encoded, StandardCharsets.UTF_8);//문자열로 바꾸기 위해 UTF8로 디코딩을 해준다.
-    }
-
-
     CompositeDisposable mCompositeDisposable;
 
     // $FF: synthetic method
     private void changeCamera(){    //실질적 사용을 위해서는 오른손 왼손을 반전시켜서 적용하는 코드 필요.
-        isJavaConnect =false;
         cameraInput.close();
         binding.control.removeView(glSurfaceView);
         setupStreamingModePipeline();
@@ -485,12 +471,11 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
         sendCoordsThread.start();
     }
     public void sendCloseSignal(){
-        Log.w("sendCoords", "버튼 클릭");
+        Log.w("CloseButton", "버튼 클릭");
         coords[0]=99;
         Thread sendCloseSignalThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (isJavaConnect) {
                     try {
                         DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
 
@@ -502,14 +487,12 @@ public final class cameraFragment extends Fragment implements View.OnClickListen
                         dos.writeFloat(99);
                         dos.flush();  // 버퍼 비우기
 
-                        Log.d("sendCoords", "CloseSignal 전송 완료");
+                        Log.d("CloseSignal", "CloseSignal 전송 완료");
                     } catch (IOException e) {
-                        Log.e("sendCoords", "CloseSignal 전송 중 에러: " + e.getMessage());
+                        Log.e("CloseSignal", "CloseSignal 전송 중 에러: " + e.getMessage());
                         e.printStackTrace();
                     }
-                } else {
-                    Log.w("CloseSignal", "서버에 접속하지 않았습니다.");
-                }
+
             }
         });
         sendCloseSignalThread.start();

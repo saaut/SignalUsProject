@@ -363,7 +363,7 @@ public class CameraXPreviewHelper extends CameraHelper {
 
     @Override
     public boolean isCameraRotated() {
-        return frameRotation % 90 == 90;
+        return frameRotation % 180 == 90;
     }
 
     @Override
