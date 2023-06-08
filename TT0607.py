@@ -7,15 +7,14 @@ import tensorflow as tf
 from collections import OrderedDict
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
-from keras.layers import Dense, SimpleRNN, LSTM, Flatten, Bidirectional
+from keras.layers import Dense, SimpleRNN, LSTM,Flatten
 from keras.layers import Dropout
 from keras.optimizers import Adam
-from keras.layers import Conv1D, MaxPooling1D
 import inspect
 import pprint
 
 # 폴더 내의 모든 csv 파일을 가져옵니다.
-folder_path = '/Users/soyeon/Downloads/csvFrom08/'  #주의: 레이블의 범주가 너무 많으면 정확도가 떨어집니다! 한 레이블 범주당 중복되는 데이터량이 많아야 좋을 거 같아요.
+folder_path = '/Users/soyeon/Downloads/csvFrom/'  #주의: 레이블의 범주가 너무 많으면 정확도가 떨어집니다! 한 레이블 범주당 중복되는 데이터량이 많아야 좋을 거 같아요.
 csv_files = glob.glob(folder_path + '*.csv')
 csv_files = sorted(csv_files)
 # 라벨링 데이터 정의
@@ -74,8 +73,8 @@ sequences = sequences[indices]
 labels = labels[indices]
 
 # 데이터를 훈련, 검증, 테스트 세트로 분할
-train_data_ratio = 0.5
-validation_data_ratio = 0.5
+train_data_ratio = 0.8
+validation_data_ratio = 0.2
 num_sequences = len(sequences)
 num_train = int(num_sequences * train_data_ratio)
 num_val = int(num_sequences * validation_data_ratio)
@@ -104,20 +103,11 @@ print(f"테스트 라벨: {test_labels}")
 print(f"테스트 라벨 길이: {len(test_labels)}")
 print(f"input_seq_length: {input_seq_length}, input_dim: {input_dim}, output_dim: {output_dim}")
 
+
 #CPU, GPU 선택
 with tf.device('/CPU:0'):
     # RNN 모델 생성
     model = Sequential()
-    # model.add(LSTM(units=256, return_sequences=True, input_shape=(input_seq_length, input_dim)))
-    # model.add(Bidirectional(LSTM(units=256, return_sequences=True)))
-    # model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-    # model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-    # model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-    # model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-    # model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-    # model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-    # model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-    # model.add(Flatten())
     model.add(SimpleRNN(units=64, return_sequences=True, input_shape=(input_seq_length, input_dim)))
     model.add(SimpleRNN(units=64, return_sequences=True))
     model.add(SimpleRNN(units=64, return_sequences=True))
@@ -126,6 +116,8 @@ with tf.device('/CPU:0'):
     model.add(SimpleRNN(units=64, return_sequences=True))
     model.add(SimpleRNN(units=64, return_sequences=True))
     model.add(SimpleRNN(units=64, return_sequences=True))
+    model.add(SimpleRNN(units=64, return_sequences=True))
+    model.add(SimpleRNN(units=64))
     model.add(Dense(units=output_dim, activation='softmax'))
 
     # Optimizer 설정
@@ -138,7 +130,7 @@ with tf.device('/CPU:0'):
     model.summary()
 
     #훈련(학습) 단계
-    model.fit(train_data, train_labels, epochs=50, batch_size=64, validation_data=(validation_data, validation_labels))
+    model.fit(train_data, train_labels, epochs=100, batch_size=64, validation_data=(validation_data, validation_labels))
 
 #모델 성능 평가
 loss, accuracy = model.evaluate(test_data, test_labels)
